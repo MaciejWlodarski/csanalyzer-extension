@@ -1,0 +1,41 @@
+{
+    "manifest_version": 3,
+    "name": "CSAnalyzer Extension",
+    "version": "0.5",
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.faceit.com/*",
+                "https://faceit.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "main.css"
+            ],
+            "run_at": "document_end"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "matches": [
+                "https://www.faceit.com/*",
+                "https://faceit.com/*"
+            ],
+            "resources": [
+                "inject.js"
+            ]
+        }
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "host_permissions": [
+        "<all_urls>"
+    ]
+}
