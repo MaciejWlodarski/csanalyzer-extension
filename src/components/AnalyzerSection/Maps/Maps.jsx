@@ -11,14 +11,27 @@ const Maps = ({ matchId, map, demoURLs, analyzerDemos }) => {
     return { map, demoURL, analyzerStatus };
   });
 
+  const singleMap = maps.length === 1;
+
   return (
-    <Card className="rounded border border-solid border-neutral-800 bg-neutral-900">
-      <CardHeader className="justify-start px-4 py-3">
-        <span className="flex justify-start font-bold">{"CSAnalyzer"}</span>
+    <Card className="rounded bg-neutral-900">
+      <CardHeader className="justify-start px-4 py-5">
+        <a href="https://csanalyzer.gg/">
+          <img
+            src={chrome.runtime.getURL("assets/logo.svg")}
+            alt="CSAnalyzer.gg"
+            className="h-5 w-min"
+          />
+        </a>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 p-3 pt-0">
         {maps.map((mapData, idx) => (
-          <Map key={idx} matchId={matchId} mapData={mapData} />
+          <Map
+            key={idx}
+            matchId={matchId}
+            mapData={mapData}
+            single={singleMap}
+          />
         ))}
       </CardContent>
     </Card>

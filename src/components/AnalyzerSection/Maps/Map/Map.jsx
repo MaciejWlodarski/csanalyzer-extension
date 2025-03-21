@@ -1,35 +1,94 @@
-import { useState } from "react";
-import Upload from "./Upload/Upload";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { getAnalyzerMatchId, sendDemoToAnalyzer } from "@/api/api";
 
-const Map = ({ matchId, mapData }) => {
+const Map = ({ matchId, mapData, single }) => {
   const { map, demoURL, analyzerStatus } = mapData;
   const { name } = map;
 
+  const [analyzerMatchId, setAnalyzerMatchId] = useState(null);
+  const [analyzerDemoId, setAnalyzerDemoId] = useState(
+    analyzerStatus?.demo_id ?? null,
+  );
   const [isUploaded, setIsUploaded] = useState(
     !!(analyzerStatus && !analyzerStatus.quota_exceeded),
   );
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [analyzerId, setAnalyzerId] = useState(analyzerStatus?.demo_id ?? null);
+  useEffect(() => {
+    if (!analyzerDemoId) return;
 
-  if (!isUploaded || !analyzerId) {
+    let intervalId;
+
+    const pollMatchId = async () => {
+      const matchId = await getAnalyzerMatchId(analyzerDemoId);
+      if (matchId) {
+        clearInterval(intervalId);
+        setAnalyzerMatchId(matchId);
+        setIsLoading(false);
+      }
+    };
+
+    pollMatchId();
+
+    intervalId = setInterval(pollMatchId, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [analyzerDemoId]);
+
+  const handleClick = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    try {
+      const response = await sendDemoToAnalyzer(matchId, demoURL);
+
+      setAnalyzerDemoId(response.demo_id);
+      setIsUploaded(true);
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
+  };
+
+  if (isLoading) {
     return (
-      <Upload
-        matchId={matchId}
-        demoURL={demoURL}
-        name={name}
-        setIsUploaded={setIsUploaded}
-        setAnalyzerId={setAnalyzerId}
-      />
+      <Button
+        variant="outline"
+        className="bg-brand/10 border-brand hover:bg-brand/30 rounded shadow-none"
+        disabled
+      >
+        <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+        <span>Uploading...</span>
+      </Button>
     );
   }
 
+  if (!isUploaded || !analyzerDemoId) {
+    return (
+      <Button
+        variant="outline"
+        className="bg-brand/10 border-brand hover:bg-brand/30 rounded shadow-none"
+        onClick={handleClick}
+      >
+        {`Upload ${name} to CSAnalyzer.gg`}
+      </Button>
+    );
+  }
+
+  const href = analyzerMatchId
+    ? `https://csanalyzer.gg/app/matches/${analyzerMatchId}`
+    : `https://panel.collector.csanalyzer.gg/demo/${analyzerDemoId}`;
+
   return (
-    <a
-      href={`https://panel.collector.csanalyzer.gg/demo/${analyzerId}`}
-      className="flex items-center justify-center rounded border border-solid border-neutral-700 bg-neutral-950 p-2 text-white no-underline transition-colors hover:bg-neutral-800"
+    <Button
+      asChild
+      variant="outline"
+      className="bg-brand/10 border-brand hover:bg-brand/30 rounded shadow-none"
     >
-      <span className="flex items-center font-bold">{`View ${name} on CSAnalyzer.gg`}</span>
-    </a>
+      <a className="flex items-center font-bold" href={href}>
+        {single ? "View on CSAnalyzer.gg" : `View ${name} on CSAnalyzer.gg`}
+      </a>
+    </Button>
   );
 };
 

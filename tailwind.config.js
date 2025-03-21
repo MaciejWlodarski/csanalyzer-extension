@@ -1,5 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 
+import {
+  scopedPreflightStyles,
+  isolateInsideOfContainer,
+} from "tailwindcss-scoped-preflight";
+
 export default {
   darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
@@ -11,6 +16,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        brand: "#2ace66",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -54,5 +60,10 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    scopedPreflightStyles({
+      isolationStrategy: isolateInsideOfContainer("#react-root"),
+    }),
+  ],
 };

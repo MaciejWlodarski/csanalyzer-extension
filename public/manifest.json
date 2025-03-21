@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "CSAnalyzer Extension",
-    "version": "0.5",
+    "version": "0.1.0",
     "permissions": [
         "activeTab",
         "scripting"
@@ -28,7 +28,8 @@
                 "https://faceit.com/*"
             ],
             "resources": [
-                "inject.js"
+                "inject.js",
+                "assets/logo.svg"
             ]
         }
     ],

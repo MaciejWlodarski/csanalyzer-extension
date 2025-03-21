@@ -1,3 +1,7 @@
+const BASE_URL = "csanalyzer.gg";
+const COLLECTOR_URL = `https://collector.${BASE_URL}`;
+const ART_URL = `https://art.${BASE_URL}`;
+
 const getRealDemoUrl = async (demoUrl) => {
   const url = "https://www.faceit.com/api/download/v2/demos/download-url";
 
@@ -26,8 +30,8 @@ const getRealDemoUrl = async (demoUrl) => {
   }
 };
 
-export const getAnalyzerStatus = async (matchId) => {
-  const url = `https://collector.csanalyzer.gg/faceit/matches/${matchId}`;
+export const getAnalyzerDemoStatus = async (matchId) => {
+  const url = `${COLLECTOR_URL}/faceit/matches/${matchId}`;
 
   try {
     const response = await fetch(url);
@@ -44,7 +48,7 @@ export const getAnalyzerStatus = async (matchId) => {
 };
 
 const sendDemoUrl = async (matchId, demoUrl, realDemoUrl) => {
-  const url = `https://collector.csanalyzer.gg/faceit/matches/${matchId}/user-upload`;
+  const url = `${COLLECTOR_URL}/faceit/matches/${matchId}/user-upload`;
 
   const body = {
     demo_url: demoUrl,
@@ -72,7 +76,7 @@ const sendDemoUrl = async (matchId, demoUrl, realDemoUrl) => {
 };
 
 export const sendDemoToAnalyzer = async (matchId, demoURL) => {
-  const analyzerStatus = await getAnalyzerStatus(matchId);
+  const analyzerStatus = await getAnalyzerDemoStatus(matchId);
 
   const demoStatus = analyzerStatus.demos.find(
     ({ demo_url }) => demo_url === demoURL,
@@ -107,4 +111,28 @@ export const sendDemosToAnalyzer = async (
     const response = await sendDemoUrl(matchId, demoUrl, realDemoUrl);
     console.log(response);
   }
+};
+
+export const getAnalyzerMatchStatus = async (demoId) => {
+  const url = `${ART_URL}/demos/${demoId}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching analyzer match id:", error);
+    throw error;
+  }
+};
+
+export const getAnalyzerMatchId = async (demoId) => {
+  if (!demoId) return null;
+
+  const matchStatus = await getAnalyzerMatchStatus(demoId);
+  return matchStatus.latest_match_id;
 };

@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { observeForGameInfoSection } from "./page/observer";
 import { injectScript } from "./utils/scripts";
 import AnalyzerSection from "./components/AnalyzerSection/AnalyzerSection";
-import { getAnalyzerStatus } from "./api/api";
+import { getAnalyzerDemoStatus } from "./api/api";
 import "./index.css";
 
 injectScript();
@@ -14,12 +14,9 @@ window.addEventListener("apiResponseIntercepted", async (event) => {
   });
 
   const response = event.detail;
-  const analyzerStatus = await getAnalyzerStatus(response.id);
-
-  console.log(response);
+  const analyzerStatus = await getAnalyzerDemoStatus(response.id);
 
   observeForGameInfoSection((rootElement) => {
-    console.log(rootElement);
     ReactDOM.createRoot(rootElement).render(
       <AnalyzerSection matchData={response} analyzerStatus={analyzerStatus} />,
     );
