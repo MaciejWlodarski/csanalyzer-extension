@@ -71,6 +71,23 @@ const sendDemoUrl = async (matchId, demoUrl, realDemoUrl) => {
   }
 };
 
+export const sendDemoToAnalyzer = async (matchId, demoURL) => {
+  const analyzerStatus = await getAnalyzerStatus(matchId);
+
+  const demoStatus = analyzerStatus.demos.find(
+    ({ demo_url }) => demo_url === demoURL,
+  );
+
+  if (demoStatus && !demoStatus.quota_exceeded) {
+    return { demo_id: demoStatus.demo_id };
+  }
+
+  const realDemoUrl = await getRealDemoUrl(demoURL);
+  const response = await sendDemoUrl(matchId, demoURL, realDemoUrl);
+
+  return response;
+};
+
 export const sendDemosToAnalyzer = async (
   matchId,
   demoUrls,

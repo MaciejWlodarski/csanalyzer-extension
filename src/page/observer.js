@@ -15,14 +15,15 @@ const createRootElement = (gameInfoSection) => {
 };
 
 const handleGameInfoSection = (callback) => {
-  const gameInfoSection = document.querySelector(
-    'div[class^="Finished__Section"]',
-  );
+  const sections = document.querySelectorAll('div[class^="Finished__Section"]');
+  const gameInfoSection = sections[sections.length - 1];
+
   if (gameInfoSection) {
     const rootElement = createRootElement(gameInfoSection);
     callback(rootElement);
     return true;
   }
+
   return false;
 };
 
