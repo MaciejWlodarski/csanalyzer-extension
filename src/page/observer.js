@@ -1,9 +1,10 @@
 let activeObserver = null;
 let currentRootElement = null;
 
-const createRootElement = (gameInfoSection) => {
+const createRootElement = (gameInfoSection, matchId) => {
   const rootElement = document.createElement("div");
   rootElement.id = "react-root";
+  rootElement.dataset.matchId = matchId;
 
   gameInfoSection.parentNode.insertBefore(
     rootElement,
@@ -14,12 +15,12 @@ const createRootElement = (gameInfoSection) => {
   return rootElement;
 };
 
-const handleGameInfoSection = (callback) => {
+const handleGameInfoSection = (callback, matchId) => {
   const sections = document.querySelectorAll('div[class^="Finished__Section"]');
   const gameInfoSection = sections[sections.length - 1];
 
   if (gameInfoSection) {
-    const rootElement = createRootElement(gameInfoSection);
+    const rootElement = createRootElement(gameInfoSection, matchId);
     callback(rootElement);
     return true;
   }
@@ -27,7 +28,7 @@ const handleGameInfoSection = (callback) => {
   return false;
 };
 
-export const observeForGameInfoSection = (callback) => {
+export const observeForGameInfoSection = (callback, matchId) => {
   if (activeObserver) {
     activeObserver.disconnect();
     activeObserver = null;
@@ -38,12 +39,12 @@ export const observeForGameInfoSection = (callback) => {
     currentRootElement = null;
   }
 
-  if (handleGameInfoSection(callback)) {
+  if (handleGameInfoSection(callback, matchId)) {
     return;
   }
 
   const observer = new MutationObserver((_, obs) => {
-    if (handleGameInfoSection(callback)) {
+    if (handleGameInfoSection(callback, matchId)) {
       obs.disconnect();
       activeObserver = null;
     }

@@ -1,24 +1,30 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import Analayzer from "./components/Analyzer/Analyzer";
 import { observeForGameInfoSection } from "./page/observer";
 import { injectScript } from "./utils/scripts";
-import AnalyzerSection from "./components/AnalyzerSection/AnalyzerSection";
 import { getAnalyzerDemoStatus } from "./api/api";
 import "./index.css";
 
 injectScript();
 
 window.addEventListener("apiResponseIntercepted", async (event) => {
+  const response = event.detail;
+  const matchId = response.id;
+
+  console.log("apiResponseIntercepted", matchId);
+
   document.querySelectorAll("#react-root").forEach((element) => {
-    element.remove();
+    if (element.dataset.matchId !== matchId) {
+      element.remove();
+    }
   });
 
-  const response = event.detail;
-  const analyzerStatus = await getAnalyzerDemoStatus(response.id);
+  const analyzerStatus = await getAnalyzerDemoStatus(matchId);
 
   observeForGameInfoSection((rootElement) => {
     ReactDOM.createRoot(rootElement).render(
-      <AnalyzerSection matchData={response} analyzerStatus={analyzerStatus} />,
+      <Analayzer matchData={response} analyzerStatus={analyzerStatus} />,
     );
-  });
+  }, matchId);
 });

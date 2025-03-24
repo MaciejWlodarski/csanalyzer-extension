@@ -54,7 +54,7 @@ const Map = ({ matchId, mapData, single }) => {
     return (
       <Button
         variant="outline"
-        className="bg-brand/10 border-brand hover:bg-brand/30 rounded shadow-none"
+        className="rounded border-brand bg-brand/10 shadow-none hover:bg-brand/30"
         disabled
       >
         <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -67,10 +67,10 @@ const Map = ({ matchId, mapData, single }) => {
     return (
       <Button
         variant="outline"
-        className="bg-brand/10 border-brand hover:bg-brand/30 rounded shadow-none"
+        className="rounded border-brand bg-brand/10 shadow-none hover:bg-brand/30"
         onClick={handleClick}
       >
-        {`Upload ${name} to CSAnalyzer.gg`}
+        {single ? "Upload to CSAnalyzer.gg" : `Upload ${name} to CSAnalyzer.gg`}
       </Button>
     );
   }
@@ -83,7 +83,7 @@ const Map = ({ matchId, mapData, single }) => {
     <Button
       asChild
       variant="outline"
-      className="bg-brand/10 border-brand hover:bg-brand/30 rounded shadow-none"
+      className="rounded border-brand bg-brand/10 shadow-none hover:bg-brand/30"
     >
       <a className="flex items-center font-bold" href={href}>
         {single ? "View on CSAnalyzer.gg" : `View ${name} on CSAnalyzer.gg`}
