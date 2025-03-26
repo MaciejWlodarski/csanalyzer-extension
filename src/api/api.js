@@ -4,29 +4,29 @@ const ART_URL = `https://art.${BASE_URL}`;
 
 const getRealDemoUrl = async (demoUrl) => {
   const url = "https://www.faceit.com/api/download/v2/demos/download-url";
-
-  const payload = {
-    resource_url: demoUrl,
-  };
+  const payload = { resource_url: demoUrl };
 
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      const error = new Error(`HTTP error: ${response.status}`);
+      error.code = response.status;
+      throw error;
     }
 
     const data = await response.json();
     return data.payload.download_url;
   } catch (error) {
+    if (error.code === undefined) {
+      error.code = 0;
+    }
     console.error("Error fetching real demo URL:", error.message);
-    return null;
+    throw error;
   }
 };
 
@@ -87,8 +87,8 @@ export const sendDemoToAnalyzer = async (matchId, demoURL) => {
   }
 
   const realDemoUrl = await getRealDemoUrl(demoURL);
-  const response = await sendDemoUrl(matchId, demoURL, realDemoUrl);
 
+  const response = await sendDemoUrl(matchId, demoURL, realDemoUrl);
   return response;
 };
 
@@ -107,9 +107,9 @@ export const sendDemosToAnalyzer = async (
     if (stateInAnalyzer) continue;
 
     const realDemoUrl = await getRealDemoUrl(demoUrl);
-
     const response = await sendDemoUrl(matchId, demoUrl, realDemoUrl);
-    console.log(response);
+
+    return response;
   }
 };
 

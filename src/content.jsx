@@ -12,8 +12,6 @@ window.addEventListener("apiResponseIntercepted", async (event) => {
   const response = event.detail;
   const matchId = response.id;
 
-  console.log("apiResponseIntercepted", matchId);
-
   document.querySelectorAll("#react-root").forEach((element) => {
     if (element.dataset.matchId !== matchId) {
       element.remove();

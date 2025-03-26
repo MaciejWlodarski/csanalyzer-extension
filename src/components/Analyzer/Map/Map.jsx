@@ -14,6 +14,7 @@ const Map = ({ matchId, mapData, single }) => {
     !!(analyzerStatus && !analyzerStatus.quota_exceeded),
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!analyzerDemoId) return;
@@ -40,13 +41,39 @@ const Map = ({ matchId, mapData, single }) => {
     if (isLoading) return;
 
     setIsLoading(true);
+    setError(null);
     try {
       const response = await sendDemoToAnalyzer(matchId, demoURL);
 
       setAnalyzerDemoId(response.demo_id);
       setIsUploaded(true);
     } catch (error) {
+      setIsLoading(false);
+      setError(error);
       console.error("Upload failed:", error);
+    }
+  };
+
+  const getErrorLabel = (code) => {
+    switch (code) {
+      case 403:
+        return (
+          <>
+            Access denied to demo file (403).
+            <br />
+            Try downloading any demo manually to generate the necessary cookie.
+          </>
+        );
+      case 404:
+        return "Demo file not found (404)";
+      case 429:
+        return "API rate limit exceeded (429)";
+      case 500:
+        return "Server error (500)";
+      case 0:
+        return "No internet connection (0)";
+      default:
+        return `Unknown error (code: ${code})`;
     }
   };
 
@@ -58,20 +85,25 @@ const Map = ({ matchId, mapData, single }) => {
         disabled
       >
         <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-        <span>Uploading...</span>
+        {isUploaded ? <span>Analyzing...</span> : <span>Uploading...</span>}
       </Button>
     );
   }
 
   if (!isUploaded || !analyzerDemoId) {
     return (
-      <Button
-        variant="outline"
-        className="rounded border-brand bg-brand/10 shadow-none hover:bg-brand/30"
-        onClick={handleClick}
-      >
-        {single ? "Upload to CSAnalyzer.gg" : `Upload ${name} to CSAnalyzer.gg`}
-      </Button>
+      <>
+        <Button
+          variant="outline"
+          className="rounded border-brand bg-brand/10 shadow-none hover:bg-brand/30"
+          onClick={handleClick}
+        >
+          {single
+            ? "Upload to CSAnalyzer.gg"
+            : `Upload ${name} to CSAnalyzer.gg`}
+        </Button>
+        {error && <p>{getErrorLabel(error.code)}</p>}
+      </>
     );
   }
 
