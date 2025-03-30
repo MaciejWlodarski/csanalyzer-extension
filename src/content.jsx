@@ -8,8 +8,10 @@ import "./index.css";
 
 injectScript();
 
+let response;
+
 window.addEventListener("apiResponseIntercepted", async (event) => {
-  const response = event.detail;
+  response = event.detail;
   const matchId = response.id;
 
   document.querySelectorAll("#react-root").forEach((element) => {
@@ -25,4 +27,37 @@ window.addEventListener("apiResponseIntercepted", async (event) => {
       <Analayzer matchData={response} analyzerStatus={analyzerStatus} />,
     );
   }, matchId);
+});
+
+const extractMatchIdFromUrl = (url) => {
+  const match = url.match(/faceit\.com\/[^/]+\/cs2\/room\/(1-[a-f0-9-]+)/i);
+  return match ? match[1] : null;
+};
+
+window.addEventListener("urlChange", async (event) => {
+  if (!response) return;
+
+  const urlMatchId = extractMatchIdFromUrl(event.detail);
+  const apiMatchId = response.id;
+
+  if (urlMatchId !== apiMatchId) {
+    document.querySelectorAll("#react-root").forEach((element) => {
+      element.remove();
+    });
+    return;
+  }
+
+  document.querySelectorAll("#react-root").forEach((element) => {
+    if (element.dataset.matchId !== urlMatchId) {
+      element.remove();
+    }
+  });
+
+  const analyzerStatus = await getAnalyzerDemoStatus(urlMatchId);
+
+  observeForGameInfoSection((rootElement) => {
+    ReactDOM.createRoot(rootElement).render(
+      <Analayzer matchData={response} analyzerStatus={analyzerStatus} />,
+    );
+  }, urlMatchId);
 });
