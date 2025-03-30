@@ -1,11 +1,12 @@
 {
   "name": "csanalyzer-extension",
   "private": true,
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "sync-version": "node scripts/update-manifest.js",
+    "build": "npm run sync-version && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

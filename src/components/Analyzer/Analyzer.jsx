@@ -23,14 +23,17 @@ const Analayzer = ({ matchData, analyzerStatus }) => {
   return (
     <div className="dark flex flex-col pb-8">
       <Card className="overflow-hidden rounded bg-neutral-900">
-        <CardHeader className="justify-start bg-neutral-800 p-4">
-          <a href="https://csanalyzer.gg/">
-            <img
-              src={chrome.runtime.getURL("assets/logo.svg")}
-              alt="CSAnalyzer.gg"
-              className="h-5 w-min"
-            />
-          </a>
+        <CardHeader className="bg-neutral-800 p-4">
+          <div className="flex items-center justify-between">
+            <a href="https://csanalyzer.gg/">
+              <img
+                src={chrome.runtime.getURL("assets/logo.svg")}
+                alt="CSAnalyzer.gg"
+                className="h-5 w-min"
+              />
+            </a>
+            <span class="text-xs font-bold text-neutral-500">{`v${__APP_VERSION__}`}</span>
+          </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 p-3">
           {maps.map((mapData, idx) => (
