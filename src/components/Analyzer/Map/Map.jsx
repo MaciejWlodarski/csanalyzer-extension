@@ -11,7 +11,11 @@ const Map = ({ matchId, mapData, single }) => {
     analyzerStatus?.demo_id ?? null,
   );
   const [isUploaded, setIsUploaded] = useState(
-    !!(analyzerStatus && !analyzerStatus.quota_exceeded),
+    !!(
+      analyzerStatus &&
+      !analyzerStatus.quota_exceeded &&
+      analyzerStatus.status !== "waiting"
+    ),
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);

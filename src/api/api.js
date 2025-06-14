@@ -82,7 +82,11 @@ export const sendDemoToAnalyzer = async (matchId, demoURL) => {
     ({ demo_url }) => demo_url === demoURL,
   );
 
-  if (demoStatus && !demoStatus.quota_exceeded) {
+  if (
+    demoStatus &&
+    !demoStatus.quota_exceeded &&
+    demoStatus.status !== "waiting"
+  ) {
     return { demo_id: demoStatus.demo_id };
   }
 
