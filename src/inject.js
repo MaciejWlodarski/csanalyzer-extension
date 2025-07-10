@@ -1,12 +1,14 @@
-import { interceptMatchApiData } from "./api/apiResponse";
+import { interceptApiData } from "./api/apiResponse";
 import { setupUrlChangeEvent } from "./page/url";
 
-interceptMatchApiData((data) => {
-  const eventName = "apiResponseIntercepted";
-  window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
+interceptApiData(({ label, payload }) => {
+  if (label === "match") {
+    window.dispatchEvent(new CustomEvent("matchApi", { detail: payload }));
+  } else if (label === "stats") {
+    window.dispatchEvent(new CustomEvent("statsApi", { detail: payload }));
+  }
 });
 
 setupUrlChangeEvent(() => {
-  const eventName = "urlChange";
-  window.dispatchEvent(new CustomEvent(eventName, { detail: location.href }));
+  window.dispatchEvent(new CustomEvent("urlChange", { detail: location.href }));
 });

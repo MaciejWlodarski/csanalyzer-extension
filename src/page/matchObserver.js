@@ -3,7 +3,7 @@ let currentRootElement = null;
 
 const createRootElement = (gameInfoSection, matchId) => {
   const rootElement = document.createElement("div");
-  rootElement.id = "react-root";
+  rootElement.id = "react-root-match";
   rootElement.dataset.matchId = matchId;
 
   gameInfoSection.parentNode.insertBefore(

@@ -1,20 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import Analayzer from "./components/Analyzer/Analyzer";
-import { observeForGameInfoSection } from "./page/observer";
+import { observeForGameInfoSection } from "./page/matchObserver";
+import { observeForSidebarSection } from "./page/sidebarObserver";
 import { injectScript } from "./utils/scripts";
 import { getAnalyzerDemoStatus } from "./api/api";
 import "./index.css";
 
 injectScript();
 
-let response;
+let matchApiResponse;
 
-window.addEventListener("apiResponseIntercepted", async (event) => {
-  response = event.detail;
-  const matchId = response.id;
+window.addEventListener("matchApi", async (event) => {
+  matchApiResponse = event.detail;
+  const matchId = matchApiResponse.id;
 
-  document.querySelectorAll("#react-root").forEach((element) => {
+  document.querySelectorAll("#react-root-match").forEach((element) => {
     if (element.dataset.matchId !== matchId) {
       element.remove();
     }
@@ -24,7 +25,10 @@ window.addEventListener("apiResponseIntercepted", async (event) => {
 
   observeForGameInfoSection((rootElement) => {
     ReactDOM.createRoot(rootElement).render(
-      <Analayzer matchData={response} analyzerStatus={analyzerStatus} />,
+      <Analayzer
+        matchData={matchApiResponse}
+        analyzerStatus={analyzerStatus}
+      />,
     );
   }, matchId);
 });
@@ -35,19 +39,19 @@ const extractMatchIdFromUrl = (url) => {
 };
 
 window.addEventListener("urlChange", async (event) => {
-  if (!response) return;
+  if (!matchApiResponse) return;
 
   const urlMatchId = extractMatchIdFromUrl(event.detail);
-  const apiMatchId = response.id;
+  const apiMatchId = matchApiResponse.id;
 
   if (urlMatchId !== apiMatchId) {
-    document.querySelectorAll("#react-root").forEach((element) => {
+    document.querySelectorAll("#react-root-match").forEach((element) => {
       element.remove();
     });
     return;
   }
 
-  document.querySelectorAll("#react-root").forEach((element) => {
+  document.querySelectorAll("#react-root-match").forEach((element) => {
     if (element.dataset.matchId !== urlMatchId) {
       element.remove();
     }
@@ -57,7 +61,18 @@ window.addEventListener("urlChange", async (event) => {
 
   observeForGameInfoSection((rootElement) => {
     ReactDOM.createRoot(rootElement).render(
-      <Analayzer matchData={response} analyzerStatus={analyzerStatus} />,
+      <Analayzer
+        matchData={matchApiResponse}
+        analyzerStatus={analyzerStatus}
+      />,
     );
   }, urlMatchId);
+});
+
+window.addEventListener("statsApi", async (event) => {
+  console.log(event.detail);
+
+  observeForSidebarSection((rootElement) => {
+    console.log(rootElement);
+  });
 });

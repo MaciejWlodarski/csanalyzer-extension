@@ -63,7 +63,7 @@ export default {
   plugins: [
     require("tailwindcss-animate"),
     scopedPreflightStyles({
-      isolationStrategy: isolateInsideOfContainer("#react-root"),
+      isolationStrategy: isolateInsideOfContainer("#react-root-match"),
     }),
   ],
 };
