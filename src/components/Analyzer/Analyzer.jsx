@@ -12,7 +12,7 @@ const Analayzer = ({ matchData, analyzerStatus }) => {
   const { entities, pick } = map;
 
   const maps = demoURLs.map((demoURL, idx) => {
-    const map = entities.find((entity) => entity.class_name === pick[idx]);
+    const map = entities.find((entity) => entity.className === pick[idx]);
     const analyzerStatus =
       analyzerDemos.find(({ demo_url }) => demo_url === demoURL) ?? null;
     return { map, demoURL, analyzerStatus };

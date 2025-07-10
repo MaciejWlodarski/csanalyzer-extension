@@ -1,7 +1,7 @@
-import ReactDOM from "react-dom";
 import Analayzer from "./components/Analyzer/Analyzer";
 import SidebarTrigger from "./components/Panel/SidebarTrigger";
 import TopbarTrigger from "./components/Panel/TopbarTrigger";
+import { createRoot } from "react-dom/client";
 import { observeForGameInfoSection } from "./page/matchObserver";
 import { observeForPanelSection } from "./page/panelObserver";
 import { injectScript } from "./utils/scripts";
@@ -25,7 +25,7 @@ window.addEventListener("matchApi", async (event) => {
   const analyzerStatus = await getAnalyzerDemoStatus(matchId);
 
   observeForGameInfoSection((rootElement) => {
-    ReactDOM.createRoot(rootElement).render(
+    createRoot(rootElement).render(
       <Analayzer
         matchData={matchApiResponse}
         analyzerStatus={analyzerStatus}
@@ -61,7 +61,7 @@ window.addEventListener("urlChange", async (event) => {
   const analyzerStatus = await getAnalyzerDemoStatus(urlMatchId);
 
   observeForGameInfoSection((rootElement) => {
-    ReactDOM.createRoot(rootElement).render(
+    createRoot(rootElement).render(
       <Analayzer
         matchData={matchApiResponse}
         analyzerStatus={analyzerStatus}
@@ -71,7 +71,7 @@ window.addEventListener("urlChange", async (event) => {
 });
 
 observeForPanelSection(({ root, pos }) => {
-  ReactDOM.createRoot(root).render(
+  createRoot(root).render(
     pos == "side" ? <SidebarTrigger /> : <TopbarTrigger />,
   );
 });
