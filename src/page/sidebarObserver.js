@@ -1,53 +1,36 @@
-let activeObserver = null;
-let currentRootElement = null;
-
-const createRootElement = (sidebarSection) => {
-  const rootElement = document.createElement("div");
-  rootElement.id = "react-root-sidebar";
-
-  sidebarSection.appendChild(rootElement);
-
-  currentRootElement = rootElement;
-  return rootElement;
-};
-
-const handleSidebarSection = (callback) => {
-  const sections = document.querySelectorAll(
-    'div[class^="styles__TopContent"]',
-  );
-  const sidebarSection = sections[sections.length - 1];
-
-  if (sidebarSection) {
-    const rootElement = createRootElement(sidebarSection);
-    callback(rootElement);
-    return true;
-  }
-
-  return false;
-};
-
 export const observeForSidebarSection = (callback) => {
-  if (activeObserver) {
-    activeObserver.disconnect();
-    activeObserver = null;
-  }
+  const ensureRootExists = () => {
+    if (document.getElementById("react-root-panel")) return;
 
-  if (currentRootElement) {
-    currentRootElement.remove();
-    currentRootElement = null;
-  }
+    const sidebar = document.querySelector('div[class^="styles__TopContent"]');
+    const topbar = document.querySelector(
+      'div[class^="styles__TopBarContainer"]',
+    );
+    const container = sidebar || topbar;
 
-  if (handleSidebarSection(callback)) {
-    return;
-  }
+    if (!container) return;
 
-  const observer = new MutationObserver((_, obs) => {
-    if (handleSidebarSection(callback)) {
-      obs.disconnect();
-      activeObserver = null;
+    const rootElement = document.createElement("div");
+    rootElement.id = "react-root-panel";
+    rootElement.style.width = "100%";
+
+    if (topbar && container === topbar && container.childNodes.length >= 1) {
+      const secondChild = container.childNodes[1] || null;
+      container.insertBefore(rootElement, secondChild);
+    } else {
+      container.appendChild(rootElement);
     }
-  });
 
-  observer.observe(document.body, { childList: true, subtree: true });
-  activeObserver = observer;
+    callback({
+      root: rootElement,
+      pos: sidebar ? "side" : "top",
+    });
+  };
+
+  ensureRootExists();
+
+  new MutationObserver(ensureRootExists).observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
 };

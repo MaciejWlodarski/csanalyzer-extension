@@ -29,7 +29,8 @@
       ],
       "resources": [
         "inject.js",
-        "assets/logo.svg"
+        "assets/logo.svg",
+        "assets/icon.svg"
       ]
     }
   ],

@@ -1,0 +1,95 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { getFaceitUser, getMatches } from ".";
+import { useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import DemoRow from "./DemoRow/DemoRow";
+
+const PanelContent = () => {
+  const [nickname, setNickname] = useState("");
+  const [user, setUser] = useState(null);
+  const [matches, setMatches] = useState(null);
+
+  const handleSearch = async () => {
+    if (!nickname.trim()) return;
+
+    const result = await getFaceitUser(nickname);
+    if (result) {
+      setUser(result.payload);
+      setMatches(null);
+    } else {
+      setUser(null);
+      setMatches(null);
+    }
+  };
+
+  const handleLoad = async () => {
+    const data = await getMatches(user.id);
+    if (data) {
+      setMatches(data);
+    }
+  };
+
+  useEffect(() => {
+    console.log(matches);
+  }, [matches]);
+
+  return (
+    <div className="flex h-full w-full flex-col justify-start gap-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
+      <form
+        className="flex w-full max-w-sm items-center gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSearch();
+        }}
+      >
+        <Input
+          type="text"
+          placeholder="Nickname"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+        />
+        <Button type="submit" variant="outline">
+          Search
+        </Button>
+      </form>
+      {user && (
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <img src={user.avatar} className="size-12 rounded-lg"></img>
+            <span className="font-bold">{user.nickname}</span>
+          </div>
+          <div>
+            <Button variant="outline" onClick={handleLoad}>
+              Load matches
+            </Button>
+          </div>
+        </div>
+      )}
+      {matches && (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Score</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {matches.map((match) => (
+              <DemoRow match={match} />
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </div>
+  );
+};
+
+export default PanelContent;

@@ -6,7 +6,6 @@ import {
 } from "tailwindcss-scoped-preflight";
 
 export default {
-  darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
@@ -63,7 +62,10 @@ export default {
   plugins: [
     require("tailwindcss-animate"),
     scopedPreflightStyles({
-      isolationStrategy: isolateInsideOfContainer("#react-root-match"),
+      isolationStrategy: isolateInsideOfContainer([
+        "#react-root-match",
+        "#react-root-panel",
+      ]),
     }),
   ],
 };

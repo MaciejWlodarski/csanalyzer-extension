@@ -21,7 +21,7 @@ const Analayzer = ({ matchData, analyzerStatus }) => {
   const singleMap = maps.length === 1;
 
   return (
-    <div className="dark flex flex-col pb-8">
+    <div className="flex flex-col pb-8">
       <Card className="overflow-hidden rounded bg-neutral-900">
         <CardHeader className="bg-neutral-800 p-4">
           <div className="flex items-center justify-between">
