@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import { resolve } from "path";
-import pkg from "./package.json" with { type: "json" };
+import react from "@vitejs/plugin-react";
+import pkg from "./package.json";
 
 export default defineConfig({
   define: {
