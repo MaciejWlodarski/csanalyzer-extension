@@ -1,9 +1,20 @@
-export const observeForSidebarSection = (callback) => {
+type PanelPosition = "side" | "top";
+
+interface PanelCallbackPayload {
+  root: HTMLDivElement;
+  pos: PanelPosition;
+}
+
+export const observeForPanelSection = (
+  callback: (payload: PanelCallbackPayload) => void,
+): void => {
   const ensureRootExists = () => {
     if (document.getElementById("react-root-panel")) return;
 
-    const sidebar = document.querySelector('div[class^="styles__TopContent"]');
-    const topbar = document.querySelector(
+    const sidebar = document.querySelector<HTMLDivElement>(
+      'div[class^="styles__TopContent"]',
+    );
+    const topbar = document.querySelector<HTMLDivElement>(
       'div[class^="styles__TopBarContainer"]',
     );
     const container = sidebar || topbar;

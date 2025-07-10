@@ -1,10 +1,9 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import Analayzer from "./components/Analyzer/Analyzer";
 import SidebarTrigger from "./components/Panel/SidebarTrigger";
 import TopbarTrigger from "./components/Panel/TopbarTrigger";
 import { observeForGameInfoSection } from "./page/matchObserver";
-import { observeForSidebarSection } from "./page/sidebarObserver";
+import { observeForPanelSection } from "./page/panelObserver";
 import { injectScript } from "./utils/scripts";
 import { getAnalyzerDemoStatus } from "./api/api";
 import "./index.css";
@@ -71,7 +70,7 @@ window.addEventListener("urlChange", async (event) => {
   }, urlMatchId);
 });
 
-observeForSidebarSection(({ root, pos }) => {
+observeForPanelSection(({ root, pos }) => {
   ReactDOM.createRoot(root).render(
     pos == "side" ? <SidebarTrigger /> : <TopbarTrigger />,
   );

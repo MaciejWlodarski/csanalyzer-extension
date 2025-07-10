@@ -1,4 +1,4 @@
-export const setupUrlChangeEvent = (callback) => {
+export const setupUrlChangeEvent = (callback: () => void) => {
   const originalPushState = history.pushState;
   const originalReplaceState = history.replaceState;
   let lastUrl = location.href;
