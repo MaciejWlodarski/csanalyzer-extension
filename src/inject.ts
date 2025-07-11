@@ -1,4 +1,4 @@
-import { interceptApiData } from "./api/apiResponse";
+import { interceptApiData } from "./api/faceit";
 import { setupUrlChangeEvent } from "./page/url";
 
 interceptApiData(({ label, payload }) => {

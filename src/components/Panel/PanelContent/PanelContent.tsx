@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getFaceitUser, getMatches } from ".";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -10,18 +9,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import DemoRow from "./DemoRow/DemoRow";
+import {
+  FaceitMatchStats,
+  FaceitUser,
+  getFaceitUser,
+  getMatches,
+} from "@/api/faceit";
 
 const PanelContent = () => {
-  const [nickname, setNickname] = useState("");
-  const [user, setUser] = useState(null);
-  const [matches, setMatches] = useState(null);
+  const [nickname, setNickname] = useState<string>("");
+  const [user, setUser] = useState<FaceitUser | null>(null);
+  const [matches, setMatches] = useState<FaceitMatchStats[] | null>(null);
 
   const handleSearch = async () => {
     if (!nickname.trim()) return;
 
     const result = await getFaceitUser(nickname);
     if (result) {
-      setUser(result.payload);
+      setUser(result);
       setMatches(null);
     } else {
       setUser(null);
@@ -30,15 +35,13 @@ const PanelContent = () => {
   };
 
   const handleLoad = async () => {
+    if (!user) return;
+
     const data = await getMatches(user.id);
     if (data) {
       setMatches(data);
     }
   };
-
-  useEffect(() => {
-    console.log(matches);
-  }, [matches]);
 
   return (
     <div className="flex h-full w-full flex-col justify-start gap-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">

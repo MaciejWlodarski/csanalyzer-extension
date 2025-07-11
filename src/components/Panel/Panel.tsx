@@ -6,7 +6,13 @@ import {
 import { Button } from "@/components/ui/button";
 import PanelContent from "./PanelContent/PanelContent";
 
-const Panel = ({ side, sideOffset }) => {
+const Panel = ({
+  side,
+  sideOffset,
+}: {
+  side: "top" | "right" | "bottom" | "left";
+  sideOffset: number;
+}) => {
   return (
     <Popover>
       <PopoverTrigger asChild>

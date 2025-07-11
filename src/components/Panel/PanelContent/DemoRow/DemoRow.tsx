@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { formatDate } from "..";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { getAnalyzerDemoStatus } from "@/api/api";
+import { AnalyzerDemoStatus, getAnalyzerGameStatus } from "@/api/analyzer";
+import { FaceitMatchStats } from "@/api/faceit";
 
-const DemoRow = ({ match }) => {
-  const [status, setStatus] = useState(null);
+const DemoRow = ({ match }: { match: FaceitMatchStats }) => {
+  const [status, setStatus] = useState<AnalyzerDemoStatus | null>(null);
 
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const { exists, demos } = await getAnalyzerDemoStatus(match.matchId);
+        const { exists, demos } = await getAnalyzerGameStatus(match.matchId);
         if (!exists) return;
         const demo = demos[Number(match.matchRound) - 1];
         setStatus(demo);
@@ -24,7 +25,7 @@ const DemoRow = ({ match }) => {
   return (
     <TableRow key={`${match.matchId}-${match.matchRound}`}>
       <TableCell>{formatDate(match.date)}</TableCell>
-      <TableCell>{match.i18}</TableCell>
+      <TableCell>{match.score}</TableCell>
       <TableCell>{status?.status}</TableCell>
     </TableRow>
   );

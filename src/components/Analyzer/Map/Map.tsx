@@ -1,29 +1,42 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { getAnalyzerMatchId, sendDemoToAnalyzer } from "@/api/api";
+import {
+  CustomError,
+  getAnalyzerMatchId,
+  sendDemoToAnalyzer,
+} from "@/api/analyzer";
+import { MapData } from "../Analyzer";
 
-const Map = ({ matchId, mapData, single }) => {
-  const { map, demoURL, analyzerStatus } = mapData;
+const Map = ({
+  matchId,
+  mapData,
+  single,
+}: {
+  matchId: string;
+  mapData: MapData;
+  single: boolean;
+}) => {
+  const { map, demoUrl, analyzerStatus } = mapData;
   const { name } = map;
 
-  const [analyzerMatchId, setAnalyzerMatchId] = useState(null);
-  const [analyzerDemoId, setAnalyzerDemoId] = useState(
-    analyzerStatus?.demo_id ?? null,
+  const [analyzerMatchId, setAnalyzerMatchId] = useState<number | null>(null);
+  const [analyzerDemoId, setAnalyzerDemoId] = useState<string | null>(
+    analyzerStatus?.demoId ?? null,
   );
-  const [isUploaded, setIsUploaded] = useState(
+  const [isUploaded, setIsUploaded] = useState<boolean>(
     !!(
       analyzerStatus &&
-      !analyzerStatus.quota_exceeded &&
+      !analyzerStatus.quotaExceeded &&
       analyzerStatus.status !== "waiting"
     ),
   );
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<CustomError | null>(null);
 
   useEffect(() => {
     if (!analyzerDemoId) return;
 
-    let intervalId;
+    let intervalId: ReturnType<typeof setInterval>;
 
     const pollMatchId = async () => {
       const matchId = await getAnalyzerMatchId(analyzerDemoId);
@@ -47,18 +60,22 @@ const Map = ({ matchId, mapData, single }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await sendDemoToAnalyzer(matchId, demoURL);
+      const response = await sendDemoToAnalyzer(matchId, demoUrl);
 
-      setAnalyzerDemoId(response.demo_id);
+      setAnalyzerDemoId(response.demoId);
       setIsUploaded(true);
-    } catch (error) {
+    } catch (err) {
       setIsLoading(false);
-      setError(error);
-      console.error("Upload failed:", error);
+      setError(
+        err instanceof Error
+          ? { ...err, code: 0 }
+          : { name: "Error", message: "Unknown error", code: 0 },
+      );
+      console.error("Upload failed:", err);
     }
   };
 
-  const getErrorLabel = (code) => {
+  const getErrorLabel = (code: number): ReactNode => {
     switch (code) {
       case 403:
         return (
