@@ -1,6 +1,10 @@
 import { z } from "zod";
 import camelcaseKeys from "camelcase-keys";
 
+export interface CustomError extends Error {
+  code: number;
+}
+
 const mapVetoEntitySchema = z
   .object({
     class_name: z.string(),
@@ -169,5 +173,48 @@ export const fetchFaceitMatch = async (matchId: string) => {
     }
     console.error("Unknown error:", error);
     throw error;
+  }
+};
+
+const realDemoUrlSchema = z
+  .object({
+    payload: z.object({
+      download_url: z.string(),
+    }),
+  })
+  .transform((data) => {
+    return camelcaseKeys(data, { deep: true });
+  });
+
+export const fetchRealDemoUrl = async (demoUrl: string) => {
+  const url = "https://www.faceit.com/api/download/v2/demos/download-url";
+  const payload = { resource_url: demoUrl };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const error = new Error(`HTTP error: ${response.status}`) as CustomError;
+      error.code = response.status;
+      throw error;
+    }
+
+    const json = await response.json();
+    const parsed = realDemoUrlSchema.parse(json);
+    return parsed.payload.downloadUrl;
+  } catch (error: unknown) {
+    if (typeof error === "object" && error !== null && "message" in error) {
+      const typedError = error as CustomError;
+      if (typedError.code === undefined) typedError.code = 0;
+      console.error("Error fetching real demo URL:", typedError.message);
+      throw typedError;
+    } else {
+      console.error("Unknown error:", error);
+      throw error;
+    }
   }
 };
