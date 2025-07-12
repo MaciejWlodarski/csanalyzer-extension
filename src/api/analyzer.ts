@@ -63,7 +63,7 @@ export interface CustomError extends Error {
   code: number;
 }
 
-const getRealDemoUrl = async (demoUrl: string) => {
+const fetchRealDemoUrl = async (demoUrl: string) => {
   const url = "https://www.faceit.com/api/download/v2/demos/download-url";
   const payload = { resource_url: demoUrl };
 
@@ -96,7 +96,7 @@ const getRealDemoUrl = async (demoUrl: string) => {
   }
 };
 
-export const getAnalyzerGameStatus = async (matchId: string) => {
+export const fetchAnalyzerGameStatus = async (matchId: string) => {
   const url = `${COLLECTOR_URL}/faceit/matches/${matchId}`;
 
   try {
@@ -147,7 +147,7 @@ const sendDemoUrl = async (
 };
 
 export const sendDemoToAnalyzer = async (matchId: string, demoURL: string) => {
-  const analyzerStatus = await getAnalyzerGameStatus(matchId);
+  const analyzerStatus = await fetchAnalyzerGameStatus(matchId);
 
   const demoStatus = analyzerStatus.demos.find(
     ({ demoUrl: analyzerDemoUrl }) => analyzerDemoUrl === demoURL,
@@ -161,12 +161,12 @@ export const sendDemoToAnalyzer = async (matchId: string, demoURL: string) => {
     return { demoId: demoStatus.demoId };
   }
 
-  const realDemoUrl = await getRealDemoUrl(demoURL);
+  const realDemoUrl = await fetchRealDemoUrl(demoURL);
   const response = await sendDemoUrl(matchId, demoURL, realDemoUrl);
   return response;
 };
 
-const getAnalyzerMatchStatus = async (demoId: string) => {
+const fetchAnalyzerMatchStatus = async (demoId: string) => {
   const url = `${ART_URL}/demos/${demoId}`;
 
   try {
@@ -184,7 +184,7 @@ const getAnalyzerMatchStatus = async (demoId: string) => {
 };
 
 export const getAnalyzerMatchId = async (demoId: string) => {
-  const matchStatus = await getAnalyzerMatchStatus(demoId);
+  const matchStatus = await fetchAnalyzerMatchStatus(demoId);
   return matchStatus.latestMatchId;
 };
 

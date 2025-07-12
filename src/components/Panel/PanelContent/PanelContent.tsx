@@ -12,8 +12,8 @@ import DemoRow from "./DemoRow/DemoRow";
 import {
   FaceitMatchStats,
   FaceitUser,
-  getFaceitUser,
-  getMatches,
+  fetchFaceitUser,
+  fetchFaceitMatches,
 } from "@/api/faceit";
 
 const PanelContent = () => {
@@ -24,7 +24,7 @@ const PanelContent = () => {
   const handleSearch = async () => {
     if (!nickname.trim()) return;
 
-    const result = await getFaceitUser(nickname);
+    const result = await fetchFaceitUser(nickname);
     if (result) {
       setUser(result);
       setMatches(null);
@@ -37,7 +37,7 @@ const PanelContent = () => {
   const handleLoad = async () => {
     if (!user) return;
 
-    const data = await getMatches(user.id);
+    const data = await fetchFaceitMatches(user.id);
     if (data) {
       setMatches(data);
     }

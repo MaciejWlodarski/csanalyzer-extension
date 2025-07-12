@@ -100,7 +100,7 @@ const faceitUserSchema = z.object({
 });
 export type FaceitUser = z.infer<typeof faceitUserSchema>;
 
-export const getFaceitUser = async (nickname: string) => {
+export const fetchFaceitUser = async (nickname: string) => {
   const url = `https://www.faceit.com/api/users/v1/nicknames/${encodeURIComponent(nickname)}`;
 
   try {
@@ -119,7 +119,11 @@ export const getFaceitUser = async (nickname: string) => {
   }
 };
 
-export const getMatches = async (userId: string, page = 0, size = 30) => {
+export const fetchFaceitMatches = async (
+  userId: string,
+  page = 0,
+  size = 30,
+) => {
   const url = `https://www.faceit.com/api/stats/v1/stats/time/users/${encodeURIComponent(
     userId,
   )}/games/cs2?page=${page}&size=${size}`;
@@ -141,5 +145,29 @@ export const getMatches = async (userId: string, page = 0, size = 30) => {
       console.error("Unknown error:", error);
       throw new Error("Unknown error while fetching user matches");
     }
+  }
+};
+
+export const fetchFaceitMatch = async (matchId: string) => {
+  const url = `https://www.faceit.com/api/match/v2/match/${matchId}`;
+
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const parsed = faceitMatchSchema.parse(data.payload);
+
+    return parsed;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Fetch error:", error.message);
+      throw error;
+    }
+    console.error("Unknown error:", error);
+    throw error;
   }
 };

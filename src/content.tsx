@@ -5,7 +5,7 @@ import { createRoot } from "react-dom/client";
 import { observeForGameInfoSection } from "./page/matchObserver";
 import { observeForPanelSection } from "./page/panelObserver";
 import { injectScript } from "./utils/scripts";
-import { getAnalyzerGameStatus } from "./api/analyzer";
+import { fetchAnalyzerGameStatus } from "./api/analyzer";
 import { FaceitMatch } from "./api/faceit";
 import "./index.css";
 
@@ -24,7 +24,7 @@ window.addEventListener("matchApi", async (event) => {
     }
   });
 
-  const analyzerGameStatus = await getAnalyzerGameStatus(matchId);
+  const analyzerGameStatus = await fetchAnalyzerGameStatus(matchId);
 
   observeForGameInfoSection((rootElement) => {
     createRoot(rootElement).render(
@@ -61,7 +61,7 @@ window.addEventListener("urlChange", async (event) => {
     }
   });
 
-  const analyzerGameStatus = await getAnalyzerGameStatus(urlMatchId);
+  const analyzerGameStatus = await fetchAnalyzerGameStatus(urlMatchId);
 
   observeForGameInfoSection((rootElement) => {
     createRoot(rootElement).render(
