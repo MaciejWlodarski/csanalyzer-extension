@@ -5,7 +5,7 @@ const TopbarTrigger = () => {
     <div className="flex h-full gap-2">
       <span className="mx-8 w-px bg-neutral-800"></span>
       <div className="flex h-full justify-center">
-        <Panel side="right" sideOffset={8} />
+        <Panel />
       </div>
     </div>
   );

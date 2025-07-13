@@ -1,11 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  CustomError,
-  getAnalyzerMatchId,
-  sendDemoToAnalyzer,
-} from "@/api/analyzer";
+import { getAnalyzerMatchId, sendDemoToAnalyzer } from "@/api/analyzer";
 import { MapData } from "../Analyzer";
+import { CustomError } from "@/api/faceit";
 
 const Map = ({
   matchId,
