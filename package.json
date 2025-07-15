@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "sync-version": "node scripts/update-manifest.js",
-    "build": "npm run sync-version && node build.cjs",
+    "build": "npm run sync-version && node build.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

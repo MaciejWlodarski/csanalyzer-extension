@@ -1,7 +1,7 @@
-const { build } = require("vite");
-const { resolve } = require("path");
-const react = require("@vitejs/plugin-react");
-const pkg = require("./package.json");
+import { build } from "vite";
+import { resolve } from "path";
+import react from "@vitejs/plugin-react";
+import pkg from "./package.json" with { type: "json" };
 
 const sharedConfig = {
   define: {
@@ -10,7 +10,7 @@ const sharedConfig = {
   plugins: [react()],
   resolve: {
     alias: {
-      "@": resolve(__dirname, "src"),
+      "@": resolve(process.cwd(), "src"),
     },
   },
   cssCodeSplit: false,
@@ -20,12 +20,12 @@ const sharedConfig = {
 const builds = [
   {
     name: "content",
-    input: resolve(__dirname, "src/content.jsx"),
+    input: resolve("src/content.jsx"),
     output: "content.js",
   },
   {
     name: "inject",
-    input: resolve(__dirname, "src/inject.ts"),
+    input: resolve("src/inject.ts"),
     output: "inject.js",
   },
 ];
@@ -33,7 +33,6 @@ const builds = [
 async function buildAll() {
   for (const { name, input, output } of builds) {
     console.log(`📦 Building: ${name}`);
-
     await build({
       ...sharedConfig,
       build: {
