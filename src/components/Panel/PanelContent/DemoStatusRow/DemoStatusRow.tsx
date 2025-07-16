@@ -9,6 +9,7 @@ import {
 } from "@/api/analyzer";
 import { FaceitMatchStats, fetchFaceitMatch } from "@/api/faceit";
 import { Button } from "@/components/ui/button";
+import { ExternalLink, Loader2Icon, ShieldX, Upload } from "lucide-react";
 
 type DemoStatus = AnalyzerDemoStatus | "missing" | "uploading";
 type AnalyzerStatusResult =
@@ -82,29 +83,54 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
       <TableCell>{match.score}</TableCell>
       <TableCell>
         {isLoading || !demoData ? (
-          <SpinnerText text="Loading..." />
+          <Button className="w-full" size="sm" disabled>
+            <Loader2Icon className="animate-spin" />
+            Loading...
+          </Button>
         ) : isError ? (
           <ErrorText message={error.message} />
         ) : demoData.status === "missing" ? (
           <>
-            <Button
-              variant="outline"
-              className="rounded border-brand bg-brand/10 shadow-none hover:bg-brand/30"
-              onClick={() => mutate()}
-              disabled={isUploading}
-            >
-              {isUploading ? "Uploading..." : "Upload"}
-            </Button>
+            {isUploading ? (
+              <Button className="w-full" size="sm" disabled>
+                <Loader2Icon className="animate-spin" />
+                Uploading...
+              </Button>
+            ) : (
+              <Button className="w-full" size={"sm"} onClick={() => mutate()}>
+                <span>Upload</span>
+                <Upload />
+              </Button>
+            )}
+
             {isUploadError && <ErrorText message={uploadError.message} />}
           </>
         ) : demoData.status === "queued" ? (
-          <SpinnerText text="Queued..." />
+          <Button className="w-full" size="sm" disabled>
+            <Loader2Icon className="animate-spin" />
+            Queued...
+          </Button>
         ) : demoData.status === "processing" ? (
-          <SpinnerText text="Processing..." />
+          <Button className="w-full" size="sm" disabled>
+            <Loader2Icon className="animate-spin" />
+            Processing...
+          </Button>
         ) : demoData.status === "success" ? (
-          <span>✔ Ready</span>
+          <Button className="w-full" size="sm" asChild>
+            <a
+              href={`http://csanalyzer.gg/app/matches/${demoData.analyzerMatchId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Stats
+              <ExternalLink />
+            </a>
+          </Button>
         ) : demoData.status === "failed" ? (
-          <span>❌ Failed</span>
+          <Button className="w-full" size="sm" disabled>
+            <ShieldX />
+            Failed
+          </Button>
         ) : (
           <span>{demoData.status}</span>
         )}
@@ -112,14 +138,6 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
     </TableRow>
   );
 };
-
-// Spinner z tekstem
-const SpinnerText = ({ text }: { text: string }) => (
-  <div className="flex items-center justify-center gap-1">
-    <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-    <span>{text}</span>
-  </div>
-);
 
 // Komponent błędu
 const ErrorText = ({ message }: { message: string }) => (

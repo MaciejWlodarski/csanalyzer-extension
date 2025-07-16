@@ -76,12 +76,12 @@ const PanelContent = () => {
         </div>
       )}
       {matches && (
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Score</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="w-[30%]">Date</TableHead>
+              <TableHead className="w-[20%]">Score</TableHead>
+              <TableHead className="w-1/2">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
