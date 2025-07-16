@@ -8,6 +8,7 @@ import { injectScript } from "./utils/scripts";
 import { fetchAnalyzerGameStatus } from "./api/analyzer";
 import { FaceitMatch } from "./api/faceit";
 import "./index.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 injectScript();
 
@@ -73,8 +74,12 @@ window.addEventListener("urlChange", async (event) => {
   }, urlMatchId);
 });
 
+const queryClient = new QueryClient();
+
 observeForPanelSection(({ root, pos }) => {
   createRoot(root).render(
-    pos == "side" ? <SidebarTrigger /> : <TopbarTrigger />,
+    <QueryClientProvider client={queryClient}>
+      {pos === "side" ? <SidebarTrigger /> : <TopbarTrigger />}
+    </QueryClientProvider>,
   );
 });

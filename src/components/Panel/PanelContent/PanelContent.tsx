@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import DemoStatus from "./DemoStatus/DemoStatus";
+import DemoStatusRow from "./DemoStatusRow/DemoStatusRow";
 import {
   FaceitMatchStats,
   FaceitUser,
@@ -86,7 +86,7 @@ const PanelContent = () => {
           </TableHeader>
           <TableBody>
             {matches.map((match) => (
-              <DemoStatus match={match} />
+              <DemoStatusRow match={match} />
             ))}
           </TableBody>
         </Table>

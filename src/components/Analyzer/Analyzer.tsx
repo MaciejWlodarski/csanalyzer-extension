@@ -1,12 +1,12 @@
 import Map from "./Map/Map";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { FaceitMatch, MapVetoEntity } from "@/api/faceit";
-import { AnalyzerDemoStatus, AnalyzerGameStatus } from "@/api/analyzer";
+import { AnalyzerDemoState, AnalyzerGameStatus } from "@/api/analyzer";
 
 export interface MapData {
   map: MapVetoEntity;
   demoUrl: string;
-  analyzerStatus: AnalyzerDemoStatus | null;
+  analyzerStatus: AnalyzerDemoState | null;
 }
 
 const Analayzer = ({

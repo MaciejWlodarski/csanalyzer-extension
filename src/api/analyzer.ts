@@ -2,18 +2,18 @@ import { z } from "zod";
 import camelcaseKeys from "camelcase-keys";
 import { fetchRealDemoUrl } from "./faceit";
 
-const analyzerStatusEnum = z.enum([
+const analyzerDemoStatusEnum = z.enum([
   "waiting",
   "queued",
   "processing",
   "failed",
   "success",
 ]);
-export type AnalyzerStatus = z.infer<typeof analyzerStatusEnum>;
+export type AnalyzerDemoStatus = z.infer<typeof analyzerDemoStatusEnum>;
 
-const analyzerDemoStatusSchema = z
+const analyzerDemoStateSchema = z
   .object({
-    status: analyzerStatusEnum,
+    status: analyzerDemoStatusEnum,
     demo_id: z.string(),
     demo_url: z.string(),
     quota_exceeded: z.boolean(),
@@ -21,11 +21,11 @@ const analyzerDemoStatusSchema = z
   .transform((data) => {
     return camelcaseKeys(data, { deep: true });
   });
-export type AnalyzerDemoStatus = z.infer<typeof analyzerDemoStatusSchema>;
+export type AnalyzerDemoState = z.infer<typeof analyzerDemoStateSchema>;
 
 const analyzerGameStatusSchema = z.object({
   exists: z.boolean(),
-  demos: z.array(analyzerDemoStatusSchema),
+  demos: z.array(analyzerDemoStateSchema),
 });
 export type AnalyzerGameStatus = z.infer<typeof analyzerGameStatusSchema>;
 
