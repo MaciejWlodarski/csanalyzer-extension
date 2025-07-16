@@ -78,7 +78,10 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
   });
 
   return (
-    <TableRow key={`${match.matchId}-${match.matchRound}`}>
+    <TableRow
+      key={`${match.matchId}-${match.matchRound}`}
+      className="hover:bg-transparent"
+    >
       <TableCell>{formatDate(match.date)}</TableCell>
       <TableCell>{match.score}</TableCell>
       <TableCell>
@@ -116,7 +119,11 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
             Processing...
           </Button>
         ) : demoData.status === "success" ? (
-          <Button className="w-full" size="sm" asChild>
+          <Button
+            asChild
+            size="sm"
+            className="hover:bg-brand-700 w-full bg-brand"
+          >
             <a
               href={`http://csanalyzer.gg/app/matches/${demoData.analyzerMatchId}`}
               target="_blank"

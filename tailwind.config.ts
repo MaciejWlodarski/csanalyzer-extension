@@ -15,7 +15,21 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
-        brand: "#2ace66",
+        brand: {
+          "50": "#f0fdf4",
+          "100": "#ddfbe7",
+          "200": "#bdf5d1",
+          "300": "#89ecad",
+          "400": "#4fd981",
+          "500": "#2ace66",
+          "600": "#1a9f4b",
+          "700": "#187d3e",
+          "800": "#186335",
+          "900": "#16512d",
+          "950": "#062d16",
+          DEFAULT: "#2ace66",
+        },
+
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
