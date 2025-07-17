@@ -1,8 +1,8 @@
-import { ReactNode, useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { getAnalyzerMatchId, sendDemoToAnalyzer } from "@/api/analyzer";
-import { MapData } from "../Analyzer";
-import { CustomError } from "@/api/faceit";
+import { ReactNode, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { getAnalyzerMatchId, sendDemoToAnalyzer } from '@/api/analyzer';
+import { MapData } from '../Analyzer';
+import { CustomError } from '@/api/faceit';
 
 const Map = ({
   matchId,
@@ -18,22 +18,20 @@ const Map = ({
 
   const [analyzerMatchId, setAnalyzerMatchId] = useState<number | null>(null);
   const [analyzerDemoId, setAnalyzerDemoId] = useState<string | null>(
-    analyzerStatus?.demoId ?? null,
+    analyzerStatus?.demoId ?? null
   );
   const [isUploaded, setIsUploaded] = useState<boolean>(
     !!(
       analyzerStatus &&
       !analyzerStatus.quotaExceeded &&
-      analyzerStatus.status !== "waiting"
-    ),
+      analyzerStatus.status !== 'waiting'
+    )
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<CustomError | null>(null);
 
   useEffect(() => {
     if (!analyzerDemoId) return;
-
-    let intervalId: ReturnType<typeof setInterval>;
 
     const pollMatchId = async () => {
       const matchId = await getAnalyzerMatchId(analyzerDemoId);
@@ -46,7 +44,7 @@ const Map = ({
 
     pollMatchId();
 
-    intervalId = setInterval(pollMatchId, 10000);
+    const intervalId = setInterval(pollMatchId, 10000);
 
     return () => clearInterval(intervalId);
   }, [analyzerDemoId]);
@@ -66,9 +64,9 @@ const Map = ({
       setError(
         err instanceof Error
           ? { ...err, code: 0 }
-          : { name: "Error", message: "Unknown error", code: 0 },
+          : { name: 'Error', message: 'Unknown error', code: 0 }
       );
-      console.error("Upload failed:", err);
+      console.error('Upload failed:', err);
     }
   };
 
@@ -83,13 +81,13 @@ const Map = ({
           </>
         );
       case 404:
-        return "Demo file not found (404)";
+        return 'Demo file not found (404)';
       case 429:
-        return "API rate limit exceeded (429)";
+        return 'API rate limit exceeded (429)';
       case 500:
-        return "Server error (500)";
+        return 'Server error (500)';
       case 0:
-        return "No internet connection (0)";
+        return 'No internet connection (0)';
       default:
         return `Unknown error (code: ${code})`;
     }
@@ -117,7 +115,7 @@ const Map = ({
           onClick={handleClick}
         >
           {single
-            ? "Upload to CSAnalyzer.gg"
+            ? 'Upload to CSAnalyzer.gg'
             : `Upload ${name} to CSAnalyzer.gg`}
         </Button>
         {error && <p>{getErrorLabel(error.code)}</p>}
@@ -136,7 +134,7 @@ const Map = ({
       className="rounded border-brand bg-brand/10 shadow-none hover:bg-brand/30"
     >
       <a className="flex items-center font-bold" href={href}>
-        {single ? "View on CSAnalyzer.gg" : `View ${name} on CSAnalyzer.gg`}
+        {single ? 'View on CSAnalyzer.gg' : `View ${name} on CSAnalyzer.gg`}
       </a>
     </Button>
   );

@@ -5,12 +5,15 @@ const createRootElement = (
   gameInfoSection: Element,
   matchId: string
 ): HTMLDivElement => {
-  const rootElement = document.createElement("div");
-  rootElement.id = "react-root-match";
+  const rootElement = document.createElement('div');
+  rootElement.id = 'react-root-match';
   rootElement.dataset.matchId = matchId;
 
   if (gameInfoSection.parentNode) {
-    gameInfoSection.parentNode.insertBefore(rootElement, gameInfoSection.nextSibling);
+    gameInfoSection.parentNode.insertBefore(
+      rootElement,
+      gameInfoSection.nextSibling
+    );
   }
 
   currentRootElement = rootElement;

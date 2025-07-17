@@ -1,6 +1,6 @@
 export const setupUrlChangeEvent = (callback: () => void) => {
-  const originalPushState = history.pushState;
-  const originalReplaceState = history.replaceState;
+  const originalPushState = history.pushState.bind(history);
+  const originalReplaceState = history.replaceState.bind(history);
   let lastUrl = location.href;
 
   const checkUrlChange = () => {
@@ -12,22 +12,22 @@ export const setupUrlChangeEvent = (callback: () => void) => {
   };
 
   history.pushState = function (...args) {
-    originalPushState.apply(this, args);
+    originalPushState(...args);
     checkUrlChange();
   };
 
   history.replaceState = function (...args) {
-    originalReplaceState.apply(this, args);
+    originalReplaceState(...args);
     checkUrlChange();
   };
 
-  window.addEventListener("popstate", checkUrlChange);
+  window.addEventListener('popstate', checkUrlChange);
 
   callback();
 
   return () => {
     history.pushState = originalPushState;
     history.replaceState = originalReplaceState;
-    window.removeEventListener("popstate", checkUrlChange);
+    window.removeEventListener('popstate', checkUrlChange);
   };
 };

@@ -1,13 +1,13 @@
-import { z } from "zod";
-import camelcaseKeys from "camelcase-keys";
-import { fetchRealDemoUrl } from "./faceit";
+import { z } from 'zod';
+import camelcaseKeys from 'camelcase-keys';
+import { fetchRealDemoUrl } from './faceit';
 
 const analyzerDemoStatusEnum = z.enum([
-  "waiting",
-  "queued",
-  "processing",
-  "failed",
-  "success",
+  'waiting',
+  'queued',
+  'processing',
+  'failed',
+  'success',
 ]);
 export type AnalyzerDemoStatus = z.infer<typeof analyzerDemoStatusEnum>;
 
@@ -46,7 +46,7 @@ const analyzerMatchStatusSchema = z
   });
 export type AnalyzerMatchStatus = z.infer<typeof analyzerMatchStatusSchema>;
 
-const BASE_URL = "csanalyzer.gg";
+const BASE_URL = 'csanalyzer.gg';
 const COLLECTOR_URL = `https://collector.${BASE_URL}`;
 const ART_URL = `https://art.${BASE_URL}`;
 
@@ -59,10 +59,9 @@ export const fetchAnalyzerGameStatus = async (matchId: string) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const json = await response.json();
-    return analyzerGameStatusSchema.parse(json);
+    return analyzerGameStatusSchema.parse(await response.json());
   } catch (error) {
-    console.error("Error fetching analyzer status:", error);
+    console.error('Error fetching analyzer status:', error);
     throw error;
   }
 };
@@ -70,7 +69,7 @@ export const fetchAnalyzerGameStatus = async (matchId: string) => {
 const sendDemoUrl = async (
   matchId: string,
   demoUrl: string,
-  realDemoUrl: string,
+  realDemoUrl: string
 ) => {
   const url = `${COLLECTOR_URL}/faceit/matches/${matchId}/user-upload`;
 
@@ -81,9 +80,9 @@ const sendDemoUrl = async (
 
   try {
     const response = await fetch(url, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
     });
@@ -92,10 +91,9 @@ const sendDemoUrl = async (
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const data = await response.json();
-    return sendDemoUrlResponseSchema.parse(data);
+    return sendDemoUrlResponseSchema.parse(await response.json());
   } catch (error) {
-    console.error("Error sending POST request:", error);
+    console.error('Error sending POST request:', error);
     throw error;
   }
 };
@@ -104,13 +102,13 @@ export const sendDemoToAnalyzer = async (matchId: string, demoURL: string) => {
   const analyzerStatus = await fetchAnalyzerGameStatus(matchId);
 
   const demoStatus = analyzerStatus.demos.find(
-    ({ demoUrl: analyzerDemoUrl }) => analyzerDemoUrl === demoURL,
+    ({ demoUrl: analyzerDemoUrl }) => analyzerDemoUrl === demoURL
   );
 
   if (
     demoStatus &&
     !demoStatus.quotaExceeded &&
-    demoStatus.status !== "waiting"
+    demoStatus.status !== 'waiting'
   ) {
     return { demoId: demoStatus.demoId };
   }
@@ -129,10 +127,9 @@ const fetchAnalyzerMatchStatus = async (demoId: string) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const data = await response.json();
-    return analyzerMatchStatusSchema.parse(data);
+    return analyzerMatchStatusSchema.parse(await response.json());
   } catch (error) {
-    console.error("Error fetching analyzer match id:", error);
+    console.error('Error fetching analyzer match id:', error);
     throw error;
   }
 };

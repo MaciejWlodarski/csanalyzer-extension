@@ -1,4 +1,4 @@
-import type { FaceitMatch, FaceitMatchStats } from "../api/faceit";
+import type { FaceitMatch, FaceitMatchStats } from '../api/faceit';
 
 declare global {
   interface WindowEventMap {

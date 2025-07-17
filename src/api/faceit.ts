@@ -1,5 +1,5 @@
-import { z } from "zod";
-import camelcaseKeys from "camelcase-keys";
+import { z } from 'zod';
+import camelcaseKeys from 'camelcase-keys';
 
 export interface CustomError extends Error {
   code: number;
@@ -50,11 +50,11 @@ const faceitMatchStatsSchema = z
 export type FaceitMatchStats = z.infer<typeof faceitMatchStatsSchema>;
 
 type InterceptedPayload =
-  | { label: "match"; payload: FaceitMatch }
-  | { label: "stats"; payload: FaceitMatchStats[] };
+  | { label: 'match'; payload: FaceitMatch }
+  | { label: 'stats'; payload: FaceitMatchStats[] };
 
 export const interceptApiData = (
-  callback: (data: InterceptedPayload) => void,
+  callback: (data: InterceptedPayload) => void
 ): void => {
   const originalOpen = XMLHttpRequest.prototype.open;
   const originalSend = XMLHttpRequest.prototype.send;
@@ -65,14 +65,14 @@ export const interceptApiData = (
   };
 
   XMLHttpRequest.prototype.send = function () {
-    this.addEventListener("readystatechange", function () {
+    this.addEventListener('readystatechange', function () {
       if (this.readyState === 4 && this.status === 200) {
         const url: string = (this as any)._interceptedUrl;
 
-        const isMatchEndpoint = url.includes("/api/match/v2/match/");
+        const isMatchEndpoint = url.includes('/api/match/v2/match/');
         const isStatsGamesEndpoint =
           /\/api\/stats\/v1\/stats\/time\/users\/[^/]+\/games\/cs2(?:\?.*)?$/.test(
-            url,
+            url
           );
 
         if (isMatchEndpoint || isStatsGamesEndpoint) {
@@ -81,13 +81,13 @@ export const interceptApiData = (
 
             if (isMatchEndpoint && response?.payload) {
               const parsed = faceitMatchSchema.parse(response.payload);
-              callback({ label: "match", payload: parsed });
+              callback({ label: 'match', payload: parsed });
             } else if (isStatsGamesEndpoint) {
               const parsed = faceitMatchStatsSchema.array().parse(response);
-              callback({ label: "stats", payload: parsed });
+              callback({ label: 'stats', payload: parsed });
             }
           } catch (error) {
-            console.error("Zod parsing or JSON error:", error);
+            console.error('Zod parsing or JSON error:', error);
           }
         }
       }
@@ -110,15 +110,16 @@ export const fetchFaceitUser = async (nickname: string) => {
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    return faceitUserSchema.parse(data.payload);
+
+    const schema = z.object({ payload: faceitUserSchema });
+    return schema.parse(await response.json()).payload;
   } catch (error) {
     if (error instanceof Error) {
-      console.error("Error while fetching user data:", error.message);
+      console.error('Error while fetching user data:', error.message);
       throw error;
     } else {
-      console.error("Unknown error:", error);
-      throw new Error("Unknown error while fetching user");
+      console.error('Unknown error:', error);
+      throw new Error('Unknown error while fetching user');
     }
   }
 };
@@ -126,10 +127,10 @@ export const fetchFaceitUser = async (nickname: string) => {
 export const fetchFaceitMatches = async (
   userId: string,
   page = 0,
-  size = 30,
+  size = 30
 ) => {
   const url = `https://www.faceit.com/api/stats/v1/stats/time/users/${encodeURIComponent(
-    userId,
+    userId
   )}/games/cs2?page=${page}&size=${size}`;
 
   try {
@@ -139,15 +140,14 @@ export const fetchFaceitMatches = async (
       throw new Error(`HTTP ${response.status}`);
     }
 
-    const data = await response.json();
-    return faceitMatchStatsSchema.array().parse(data);
+    return faceitMatchStatsSchema.array().parse(await response.json());
   } catch (error) {
     if (error instanceof Error) {
-      console.error("Error while fetching user matches:", error.message);
+      console.error('Error while fetching user matches:', error.message);
       throw error;
     } else {
-      console.error("Unknown error:", error);
-      throw new Error("Unknown error while fetching user matches");
+      console.error('Unknown error:', error);
+      throw new Error('Unknown error while fetching user matches');
     }
   }
 };
@@ -162,16 +162,14 @@ export const fetchFaceitMatch = async (matchId: string) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    const parsed = faceitMatchSchema.parse(data.payload);
-
-    return parsed;
+    const schema = z.object({ payload: faceitMatchSchema });
+    return schema.parse(await response.json()).payload;
   } catch (error) {
     if (error instanceof Error) {
-      console.error("Fetch error:", error.message);
+      console.error('Fetch error:', error.message);
       throw error;
     }
-    console.error("Unknown error:", error);
+    console.error('Unknown error:', error);
     throw error;
   }
 };
@@ -187,13 +185,13 @@ const realDemoUrlSchema = z
   });
 
 export const fetchRealDemoUrl = async (demoUrl: string) => {
-  const url = "https://www.faceit.com/api/download/v2/demos/download-url";
+  const url = 'https://www.faceit.com/api/download/v2/demos/download-url';
   const payload = { resource_url: demoUrl };
 
   try {
     const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
@@ -203,17 +201,16 @@ export const fetchRealDemoUrl = async (demoUrl: string) => {
       throw error;
     }
 
-    const json = await response.json();
-    const parsed = realDemoUrlSchema.parse(json);
+    const parsed = realDemoUrlSchema.parse(await response.json());
     return parsed.payload.downloadUrl;
   } catch (error: unknown) {
-    if (typeof error === "object" && error !== null && "message" in error) {
+    if (typeof error === 'object' && error !== null && 'message' in error) {
       const typedError = error as CustomError;
       if (typedError.code === undefined) typedError.code = 0;
-      console.error("Error fetching real demo URL:", typedError.message);
+      console.error('Error fetching real demo URL:', typedError.message);
       throw typedError;
     } else {
-      console.error("Unknown error:", error);
+      console.error('Unknown error:', error);
       throw error;
     }
   }

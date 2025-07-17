@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import PanelContent from "./PanelContent/PanelContent";
+import { useEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import PanelContent from './PanelContent/PanelContent';
 
 const Panel = () => {
   const [open, setOpen] = useState(false);
@@ -21,17 +21,17 @@ const Panel = () => {
       }
     };
 
-    if (open) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    if (open) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [open]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === 'Escape') setOpen(false);
     };
 
-    if (open) window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    if (open) window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
   }, [open]);
 
   return (
@@ -44,17 +44,17 @@ const Panel = () => {
       >
         <div className="size-full rounded-[0.625rem] bg-neutral-700 p-1">
           <img
-            src={chrome.runtime.getURL("assets/icon.svg")}
+            src={chrome.runtime.getURL('assets/icon.svg')}
             alt="icon"
             className="size-full"
           />
         </div>
       </Button>
       <div
-        data-state={open ? "open" : "closed"}
+        data-state={open ? 'open' : 'closed'}
         ref={panelRef}
         className={cn(
-          "absolute right-[4.5rem] top-0 z-50 h-screen w-96 py-4 transition-opacity data-[state=closed]:pointer-events-none data-[state=open]:pointer-events-auto data-[state=closed]:opacity-0 data-[state=open]:opacity-100",
+          'absolute right-[4.5rem] top-0 z-50 h-screen w-96 py-4 transition-opacity data-[state=closed]:pointer-events-none data-[state=open]:pointer-events-auto data-[state=closed]:opacity-0 data-[state=open]:opacity-100'
         )}
       >
         <PanelContent />

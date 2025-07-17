@@ -1,7 +1,7 @@
-import Map from "./Map/Map";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FaceitMatch, MapVetoEntity } from "@/api/faceit";
-import { AnalyzerDemoState, AnalyzerGameStatus } from "@/api/analyzer";
+import Map from './Map/Map';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { FaceitMatch, MapVetoEntity } from '@/api/faceit';
+import { AnalyzerDemoState, AnalyzerGameStatus } from '@/api/analyzer';
 
 export interface MapData {
   map: MapVetoEntity;
@@ -29,7 +29,7 @@ const Analayzer = ({
     const map = entities.find((entity) => entity.className === pick[idx])!;
     const analyzerStatus =
       analyzerDemos.find(
-        ({ demoUrl: analyzerDemoUrl }) => faceitDemoUrl === analyzerDemoUrl,
+        ({ demoUrl: analyzerDemoUrl }) => faceitDemoUrl === analyzerDemoUrl
       ) ?? null;
     return { map, demoUrl: faceitDemoUrl, analyzerStatus };
   });
@@ -43,7 +43,7 @@ const Analayzer = ({
           <div className="flex items-center justify-between">
             <a href="https://csanalyzer.gg/">
               <img
-                src={chrome.runtime.getURL("assets/logo.svg")}
+                src={chrome.runtime.getURL('assets/logo.svg')}
                 alt="CSAnalyzer.gg"
                 className="h-5 w-min"
               />

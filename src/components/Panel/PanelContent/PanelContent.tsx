@@ -1,23 +1,23 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useState } from 'react';
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import DemoStatusRow from "./DemoStatusRow/DemoStatusRow";
+} from '@/components/ui/table';
+import DemoStatusRow from './DemoStatusRow/DemoStatusRow';
 import {
   FaceitMatchStats,
   FaceitUser,
   fetchFaceitUser,
   fetchFaceitMatches,
-} from "@/api/faceit";
+} from '@/api/faceit';
 
 const PanelContent = () => {
-  const [nickname, setNickname] = useState<string>("");
+  const [nickname, setNickname] = useState<string>('');
   const [user, setUser] = useState<FaceitUser | null>(null);
   const [matches, setMatches] = useState<FaceitMatchStats[] | null>(null);
 
@@ -86,7 +86,7 @@ const PanelContent = () => {
           </TableHeader>
           <TableBody>
             {matches.map((match) => (
-              <DemoStatusRow match={match} />
+              <DemoStatusRow key={match.matchId} match={match} />
             ))}
           </TableBody>
         </Table>

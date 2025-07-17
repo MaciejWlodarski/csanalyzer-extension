@@ -1,4 +1,4 @@
-type PanelPosition = "side" | "top";
+type PanelPosition = 'side' | 'top';
 
 interface PanelCallbackPayload {
   root: HTMLDivElement;
@@ -6,24 +6,24 @@ interface PanelCallbackPayload {
 }
 
 export const observeForPanelSection = (
-  callback: (payload: PanelCallbackPayload) => void,
+  callback: (payload: PanelCallbackPayload) => void
 ): void => {
   const ensureRootExists = () => {
-    if (document.getElementById("react-root-panel")) return;
+    if (document.getElementById('react-root-panel')) return;
 
     const sidebar = document.querySelector<HTMLDivElement>(
-      'div[class^="styles__TopContent"]',
+      'div[class^="styles__TopContent"]'
     );
     const topbar = document.querySelector<HTMLDivElement>(
-      'div[class^="styles__TopBarContainer"]',
+      'div[class^="styles__TopBarContainer"]'
     );
     const container = sidebar || topbar;
 
     if (!container) return;
 
-    const rootElement = document.createElement("div");
-    rootElement.id = "react-root-panel";
-    rootElement.style.width = "100%";
+    const rootElement = document.createElement('div');
+    rootElement.id = 'react-root-panel';
+    rootElement.style.width = '100%';
 
     if (topbar && container === topbar && container.childNodes.length >= 1) {
       const secondChild = container.childNodes[1] || null;
@@ -34,7 +34,7 @@ export const observeForPanelSection = (
 
     callback({
       root: rootElement,
-      pos: sidebar ? "side" : "top",
+      pos: sidebar ? 'side' : 'top',
     });
   };
 

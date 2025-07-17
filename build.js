@@ -1,7 +1,7 @@
-import { build } from "vite";
-import { resolve } from "path";
-import react from "@vitejs/plugin-react";
-import pkg from "./package.json" with { type: "json" };
+import { build } from 'vite';
+import { resolve } from 'path';
+import react from '@vitejs/plugin-react';
+import pkg from './package.json' with { type: 'json' };
 
 const sharedConfig = {
   define: {
@@ -10,23 +10,23 @@ const sharedConfig = {
   plugins: [react()],
   resolve: {
     alias: {
-      "@": resolve(process.cwd(), "src"),
+      '@': resolve(process.cwd(), 'src'),
     },
   },
   cssCodeSplit: false,
-  outDir: "dist",
+  outDir: 'dist',
 };
 
 const builds = [
   {
-    name: "content",
-    input: resolve("src/content.jsx"),
-    output: "content.js",
+    name: 'content',
+    input: resolve('src/content.jsx'),
+    output: 'content.js',
   },
   {
-    name: "inject",
-    input: resolve("src/inject.ts"),
-    output: "inject.js",
+    name: 'inject',
+    input: resolve('src/inject.ts'),
+    output: 'inject.js',
   },
 ];
 
@@ -37,7 +37,7 @@ async function buildAll() {
       ...sharedConfig,
       build: {
         emptyOutDir: false,
-        outDir: "dist",
+        outDir: 'dist',
         cssCodeSplit: false,
         rollupOptions: {
           input,
@@ -45,8 +45,8 @@ async function buildAll() {
             entryFileNames: output,
             manualChunks: undefined,
             assetFileNames: (assetInfo) => {
-              if (assetInfo.names?.[0]?.endsWith(".css")) return "main.css";
-              return "assets/[name]-[hash][extname]";
+              if (assetInfo.names?.[0]?.endsWith('.css')) return 'main.css';
+              return 'assets/[name]-[hash][extname]';
             },
           },
         },
@@ -54,10 +54,10 @@ async function buildAll() {
     });
   }
 
-  console.log("✅ All done!");
+  console.log('✅ All done!');
 }
 
 buildAll().catch((e) => {
-  console.error("❌ Build failed:", e);
+  console.error('❌ Build failed:', e);
   process.exit(1);
 });
