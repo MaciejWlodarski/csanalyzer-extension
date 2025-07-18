@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -15,42 +14,42 @@ import {
   fetchFaceitUser,
   fetchFaceitMatches,
 } from '@/api/faceit';
+import { FormEvent, useState } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { LoaderCircle } from 'lucide-react';
 
 const PanelContent = () => {
-  const [nickname, setNickname] = useState<string>('');
-  const [user, setUser] = useState<FaceitUser | null>(null);
-  const [matches, setMatches] = useState<FaceitMatchStats[] | null>(null);
+  const [nickname, setNickname] = useState('');
 
-  const handleSearch = async () => {
-    if (!nickname.trim()) return;
+  const userMutation = useMutation<FaceitUser, Error, string>({
+    mutationFn: fetchFaceitUser,
+  });
 
-    const result = await fetchFaceitUser(nickname);
-    if (result) {
-      setUser(result);
-      setMatches(null);
-    } else {
-      setUser(null);
-      setMatches(null);
-    }
-  };
+  const user = userMutation.data;
 
-  const handleLoad = async () => {
-    if (!user) return;
+  const {
+    data: matches,
+    isFetching: isLoadingMatches,
+    isError: isMatchesError,
+    error: matchesError,
+  } = useQuery<FaceitMatchStats[], Error>({
+    queryKey: ['faceit-matches', user?.id],
+    queryFn: () => fetchFaceitMatches(user!.id),
+    enabled: !!user,
+  });
 
-    const data = await fetchFaceitMatches(user.id);
-    if (data) {
-      setMatches(data);
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
+    if (nickname.trim()) {
+      userMutation.mutate(nickname.trim());
     }
   };
 
   return (
     <div className="flex h-full w-full flex-col justify-start gap-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
       <form
-        className="flex w-full max-w-sm items-center gap-2"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSearch();
-        }}
+        className="grid w-full grid-cols-[3fr,_2fr] items-center gap-2"
+        onSubmit={handleSearch}
       >
         <Input
           type="text"
@@ -58,23 +57,43 @@ const PanelContent = () => {
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
         />
-        <Button type="submit" variant="outline">
-          Search
+        <Button type="submit" disabled={userMutation.isPending}>
+          {userMutation.isPending ? (
+            <>
+              <LoaderCircle className="animate-spin" />
+              Please wait
+            </>
+          ) : (
+            'Search'
+          )}
         </Button>
       </form>
+
+      {userMutation.isError && (
+        <div className="text-sm text-red-500">
+          Error: {userMutation.error.message}
+        </div>
+      )}
+
       {user && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-4">
-            <img src={user.avatar} className="size-12 rounded-lg"></img>
+            <img src={user.avatar} className="size-12 rounded-lg" />
             <span className="font-bold">{user.nickname}</span>
-          </div>
-          <div>
-            <Button variant="outline" onClick={handleLoad}>
-              Load matches
-            </Button>
           </div>
         </div>
       )}
+
+      {isMatchesError && (
+        <div className="text-sm text-red-500">
+          Error loading matches: {matchesError.message}
+        </div>
+      )}
+
+      {isLoadingMatches && (
+        <div className="text-sm text-neutral-400">Loading matches…</div>
+      )}
+
       {matches && (
         <Table className="table-fixed">
           <TableHeader>

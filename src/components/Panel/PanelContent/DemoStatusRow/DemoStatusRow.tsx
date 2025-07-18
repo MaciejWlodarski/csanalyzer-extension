@@ -136,9 +136,13 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
             </a>
           </Button>
         ) : demoData.status === 'failed' ? (
-          <Button className="w-full" size="sm" disabled>
-            <ShieldX />
+          <Button
+            disabled
+            size="sm"
+            className="w-full bg-red-700 text-white disabled:opacity-100"
+          >
             Failed
+            <ShieldX />
           </Button>
         ) : (
           <span>{demoData.status}</span>
