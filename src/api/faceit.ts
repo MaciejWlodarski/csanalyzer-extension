@@ -14,10 +14,23 @@ const mapVetoEntitySchema = z
     image_sm: z.string(),
     name: z.string(),
   })
-  .transform((data) => {
-    return camelcaseKeys(data, { deep: true });
-  });
+  .transform((data) => camelcaseKeys(data, { deep: true }));
 export type MapVetoEntity = z.infer<typeof mapVetoEntitySchema>;
+
+const matchCustom = z
+  .object({
+    tree: z.object({
+      map: z.object({
+        flags: z.object({
+          votable: z.boolean(),
+          values: z.object({
+            value: z.union([z.array(mapVetoEntitySchema), mapVetoEntitySchema]),
+          }),
+        }),
+      }),
+    }),
+  })
+  .transform((data) => camelcaseKeys(data, { deep: true }));
 
 const mapVetoSchema = z.object({
   entities: z.array(mapVetoEntitySchema),
@@ -28,9 +41,8 @@ export type MapVeto = z.infer<typeof mapVetoSchema>;
 const faceitMatchSchema = z.object({
   id: z.string(),
   demoURLs: z.array(z.string()),
-  voting: z.object({
-    map: mapVetoSchema,
-  }),
+  matchCustom: matchCustom,
+  voting: z.object({ map: mapVetoSchema }),
 });
 export type FaceitMatch = z.infer<typeof faceitMatchSchema>;
 
@@ -175,11 +187,7 @@ export const fetchFaceitMatch = async (matchId: string) => {
 };
 
 const realDemoUrlSchema = z
-  .object({
-    payload: z.object({
-      download_url: z.string(),
-    }),
-  })
+  .object({ payload: z.object({ download_url: z.string() }) })
   .transform((data) => {
     return camelcaseKeys(data, { deep: true });
   });

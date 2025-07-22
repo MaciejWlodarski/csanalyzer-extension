@@ -46,70 +46,81 @@ const PanelContent = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col justify-start gap-4 rounded-xl border border-neutral-800 bg-neutral-950 p-4">
-      <form
-        className="grid w-full grid-cols-[3fr,_2fr] items-center gap-2"
-        onSubmit={handleSearch}
-      >
-        <Input
-          type="text"
-          placeholder="Nickname"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-        />
-        <Button type="submit" disabled={userMutation.isPending}>
-          {userMutation.isPending ? (
-            <>
-              <LoaderCircle className="animate-spin" />
-              Please wait
-            </>
-          ) : (
-            'Search'
-          )}
-        </Button>
-      </form>
+    <div className="flex h-full flex-col">
+      <div className="rounded-t-xl border border-neutral-800 bg-neutral-900 p-4">
+        <a href="https://csanalyzer.gg/">
+          <img
+            src={chrome.runtime.getURL('assets/logo.svg')}
+            alt="CSAnalyzer.gg"
+            className="h-5 w-min"
+          />
+        </a>
+      </div>
+      <div className="flex h-full w-full flex-col justify-start gap-4 rounded-b-xl border border-t-0 border-neutral-800 bg-neutral-950 p-4">
+        <form
+          className="grid w-full grid-cols-[3fr,_2fr] items-center gap-2"
+          onSubmit={handleSearch}
+        >
+          <Input
+            type="text"
+            placeholder="Nickname"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+          />
+          <Button type="submit" disabled={userMutation.isPending}>
+            {userMutation.isPending ? (
+              <>
+                <LoaderCircle className="animate-spin" />
+                Please wait
+              </>
+            ) : (
+              'Search'
+            )}
+          </Button>
+        </form>
 
-      {userMutation.isError && (
-        <div className="text-sm text-red-500">
-          Error: {userMutation.error.message}
-        </div>
-      )}
-
-      {user && (
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-4">
-            <img src={user.avatar} className="size-12 rounded-lg" />
-            <span className="font-bold">{user.nickname}</span>
+        {userMutation.isError && (
+          <div className="text-sm text-red-500">
+            Error: {userMutation.error.message}
           </div>
-        </div>
-      )}
+        )}
 
-      {isMatchesError && (
-        <div className="text-sm text-red-500">
-          Error loading matches: {matchesError.message}
-        </div>
-      )}
+        {user && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <img src={user.avatar} className="size-12 rounded-lg" />
+              <span className="font-bold">{user.nickname}</span>
+            </div>
+          </div>
+        )}
 
-      {isLoadingMatches && (
-        <div className="text-sm text-neutral-400">Loading matches…</div>
-      )}
+        {isMatchesError && (
+          <div className="text-sm text-red-500">
+            Error loading matches: {matchesError.message}
+          </div>
+        )}
 
-      {matches && (
-        <Table className="table-fixed">
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[30%]">Date</TableHead>
-              <TableHead className="w-[20%]">Score</TableHead>
-              <TableHead className="w-1/2">Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {matches.map((match) => (
-              <DemoStatusRow key={match.matchId} match={match} />
-            ))}
-          </TableBody>
-        </Table>
-      )}
+        {isLoadingMatches && (
+          <div className="text-sm text-neutral-400">Loading matches…</div>
+        )}
+
+        {matches && (
+          <Table className="table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[30%]">Date</TableHead>
+                <TableHead className="w-[20%]">Score</TableHead>
+                <TableHead className="w-1/2">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {matches.map((match) => (
+                <DemoStatusRow key={match.matchId} match={match} />
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
     </div>
   );
 };

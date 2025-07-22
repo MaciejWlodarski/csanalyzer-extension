@@ -53,9 +53,7 @@ const Panel = () => {
       <div
         data-state={open ? 'open' : 'closed'}
         ref={panelRef}
-        className={cn(
-          'absolute right-[4.5rem] top-0 z-50 h-screen w-96 py-4 transition-opacity data-[state=closed]:pointer-events-none data-[state=open]:pointer-events-auto data-[state=closed]:opacity-0 data-[state=open]:opacity-100'
-        )}
+        className="absolute right-[4.5rem] top-0 z-50 h-screen w-96 py-4 transition-opacity data-[state=closed]:pointer-events-none data-[state=open]:pointer-events-auto data-[state=closed]:opacity-0 data-[state=open]:opacity-100"
       >
         <PanelContent />
       </div>
