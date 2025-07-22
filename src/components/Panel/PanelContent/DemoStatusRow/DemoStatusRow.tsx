@@ -7,7 +7,7 @@ import {
   getAnalyzerMatchId,
   sendDemoToAnalyzer,
 } from '@/api/analyzer';
-import { FaceitMatchStats, fetchFaceitMatch } from '@/api/faceit';
+import { FaceitMatchStats, fetchFaceitMatch, HttpError } from '@/api/faceit';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, LoaderCircle, ShieldX, Upload } from 'lucide-react';
 
@@ -36,7 +36,7 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
       if (demo.status === 'success') {
         const matchId = await getAnalyzerMatchId(demo.demoId);
 
-        if (matchId == null) {
+        if (matchId === null) {
           throw new Error(
             "Expected analyzerMatchId for 'success' demo, but got null"
           );
@@ -66,8 +66,18 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
     mutationFn: async () => {
       const faceitMatch = await fetchFaceitMatch(match.matchId);
       const { id: faceitMatchId, demoURLs } = faceitMatch;
+
+      if (!demoURLs) throw new Error('No demo URLs found');
       const demoUrl = demoURLs[match.matchRound - 1];
-      await sendDemoToAnalyzer(faceitMatchId, demoUrl);
+
+      try {
+        await sendDemoToAnalyzer(faceitMatchId, demoUrl);
+      } catch (error) {
+        if (error instanceof HttpError && error.status === 403) {
+          console.warn('Cookie expired — refreshing session and retrying');
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.setQueryData<AnalyzerStatusResult>(statusQueryKey, {
@@ -93,7 +103,7 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
             Loading...
           </Button>
         ) : isError ? (
-          <ErrorText message={error.message} />
+          <div className="mt-1 text-sm text-red-500">{error.message}</div>
         ) : demoData.status === 'missing' ? (
           <>
             {isUploading ? (
@@ -108,7 +118,11 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
               </Button>
             )}
 
-            {isUploadError && <ErrorText message={uploadError.message} />}
+            {isUploadError && (
+              <div className="mt-1 text-sm text-red-500">
+                {uploadError.message}
+              </div>
+            )}
           </>
         ) : demoData.status === 'queued' ? (
           <Button className="w-full" size="sm" disabled>
@@ -151,10 +165,5 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
     </TableRow>
   );
 };
-
-// Komponent błędu
-const ErrorText = ({ message }: { message: string }) => (
-  <div className="mt-1 text-sm text-red-500">Error: {message}</div>
-);
 
 export default DemoStatusRow;

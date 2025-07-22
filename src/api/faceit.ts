@@ -1,10 +1,6 @@
 import { z } from 'zod';
 import camelcaseKeys from 'camelcase-keys';
 
-export interface CustomError extends Error {
-  code: number;
-}
-
 const mapVetoEntitySchema = z
   .object({
     class_name: z.string(),
@@ -17,20 +13,18 @@ const mapVetoEntitySchema = z
   .transform((data) => camelcaseKeys(data, { deep: true }));
 export type MapVetoEntity = z.infer<typeof mapVetoEntitySchema>;
 
-const matchCustom = z
-  .object({
-    tree: z.object({
-      map: z.object({
-        flags: z.object({
-          votable: z.boolean(),
-          values: z.object({
-            value: z.union([z.array(mapVetoEntitySchema), mapVetoEntitySchema]),
-          }),
-        }),
+const matchCustom = z.object({
+  tree: z.object({
+    map: z.object({
+      flags: z.object({
+        votable: z.boolean(),
+      }),
+      values: z.object({
+        value: z.union([z.array(mapVetoEntitySchema), mapVetoEntitySchema]),
       }),
     }),
-  })
-  .transform((data) => camelcaseKeys(data, { deep: true }));
+  }),
+});
 
 const mapVetoSchema = z.object({
   entities: z.array(mapVetoEntitySchema),
@@ -40,9 +34,9 @@ export type MapVeto = z.infer<typeof mapVetoSchema>;
 
 const faceitMatchSchema = z.object({
   id: z.string(),
-  demoURLs: z.array(z.string()),
+  demoURLs: z.array(z.string()).optional(),
   matchCustom: matchCustom,
-  voting: z.object({ map: mapVetoSchema }),
+  voting: z.object({ map: mapVetoSchema.optional() }).optional(),
 });
 export type FaceitMatch = z.infer<typeof faceitMatchSchema>;
 
@@ -119,21 +113,11 @@ export type FaceitUser = z.infer<typeof faceitUserSchema>;
 export const fetchFaceitUser = async (nickname: string) => {
   const url = `https://www.faceit.com/api/users/v1/nicknames/${encodeURIComponent(nickname)}`;
 
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
 
-    const schema = z.object({ payload: faceitUserSchema });
-    return schema.parse(await response.json()).payload;
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error while fetching user data:', error.message);
-      throw error;
-    } else {
-      console.error('Unknown error:', error);
-      throw new Error('Unknown error while fetching user');
-    }
-  }
+  const schema = z.object({ payload: faceitUserSchema });
+  return schema.parse(await response.json()).payload;
 };
 
 export const fetchFaceitMatches = async (
@@ -145,81 +129,50 @@ export const fetchFaceitMatches = async (
     userId
   )}/games/cs2?page=${page}&size=${size}`;
 
-  try {
-    const response = await fetch(url);
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    return faceitMatchStatsSchema.array().parse(await response.json());
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('Error while fetching user matches:', error.message);
-      throw error;
-    } else {
-      console.error('Unknown error:', error);
-      throw new Error('Unknown error while fetching user matches');
-    }
-  }
+  return faceitMatchStatsSchema.array().parse(await response.json());
 };
 
 export const fetchFaceitMatch = async (matchId: string) => {
   const url = `https://www.faceit.com/api/match/v2/match/${matchId}`;
 
-  try {
-    const response = await fetch(url);
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const schema = z.object({ payload: faceitMatchSchema });
-    return schema.parse(await response.json()).payload;
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('Fetch error:', error.message);
-      throw error;
-    }
-    console.error('Unknown error:', error);
-    throw error;
-  }
+  const schema = z.object({ payload: faceitMatchSchema });
+  return schema.parse(await response.json()).payload;
 };
 
 const realDemoUrlSchema = z
   .object({ payload: z.object({ download_url: z.string() }) })
-  .transform((data) => {
-    return camelcaseKeys(data, { deep: true });
-  });
+  .transform((data) => camelcaseKeys(data, { deep: true }));
+
+export class HttpError extends Error {
+  constructor(
+    public status: number,
+    message: string
+  ) {
+    super(message);
+    this.name = 'HttpError';
+  }
+}
 
 export const fetchRealDemoUrl = async (demoUrl: string) => {
   const url = 'https://www.faceit.com/api/download/v2/demos/download-url';
   const payload = { resource_url: demoUrl };
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
 
-    if (!response.ok) {
-      const error = new Error(`HTTP error: ${response.status}`) as CustomError;
-      error.code = response.status;
-      throw error;
-    }
-
-    const parsed = realDemoUrlSchema.parse(await response.json());
-    return parsed.payload.downloadUrl;
-  } catch (error: unknown) {
-    if (typeof error === 'object' && error !== null && 'message' in error) {
-      const typedError = error as CustomError;
-      if (typedError.code === undefined) typedError.code = 0;
-      console.error('Error fetching real demo URL:', typedError.message);
-      throw typedError;
-    } else {
-      console.error('Unknown error:', error);
-      throw error;
-    }
+  if (!response.ok) {
+    throw new HttpError(response.status, `HTTP error: ${response.status}`);
   }
+
+  const parsed = realDemoUrlSchema.parse(await response.json());
+  return parsed.payload.downloadUrl;
 };

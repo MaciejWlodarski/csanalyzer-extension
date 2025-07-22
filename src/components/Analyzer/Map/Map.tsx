@@ -1,8 +1,7 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getAnalyzerMatchId, sendDemoToAnalyzer } from '@/api/analyzer';
 import { MapData } from '../Analyzer';
-import { CustomError } from '@/api/faceit';
 
 const Map = ({
   matchId,
@@ -28,7 +27,7 @@ const Map = ({
     )
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<CustomError | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!analyzerDemoId) return;
@@ -63,33 +62,10 @@ const Map = ({
       setIsLoading(false);
       setError(
         err instanceof Error
-          ? { ...err, code: 0 }
-          : { name: 'Error', message: 'Unknown error', code: 0 }
+          ? { ...err }
+          : { name: 'Error', message: 'Unknown error' }
       );
       console.error('Upload failed:', err);
-    }
-  };
-
-  const getErrorLabel = (code: number): ReactNode => {
-    switch (code) {
-      case 403:
-        return (
-          <>
-            Access denied to demo file (403).
-            <br />
-            Try downloading any demo manually to generate the necessary cookie.
-          </>
-        );
-      case 404:
-        return 'Demo file not found (404)';
-      case 429:
-        return 'API rate limit exceeded (429)';
-      case 500:
-        return 'Server error (500)';
-      case 0:
-        return 'No internet connection (0)';
-      default:
-        return `Unknown error (code: ${code})`;
     }
   };
 
@@ -118,7 +94,7 @@ const Map = ({
             ? 'Upload to CSAnalyzer.gg'
             : `Upload ${name} to CSAnalyzer.gg`}
         </Button>
-        {error && <p>{getErrorLabel(error.code)}</p>}
+        {error && <p>{error.message}</p>}
       </>
     );
   }
