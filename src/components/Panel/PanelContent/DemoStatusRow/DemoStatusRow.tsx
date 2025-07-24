@@ -1,93 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDate } from '..';
 import { TableCell, TableRow } from '@/components/ui/table';
-import {
-  AnalyzerDemoStatus,
-  fetchAnalyzerGameStatus,
-  getAnalyzerMatchId,
-  sendDemoToAnalyzer,
-} from '@/api/analyzer';
-import { FaceitMatchStats, fetchFaceitMatch, HttpError } from '@/api/faceit';
+import { FaceitMatchStats } from '@/api/faceit';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, LoaderCircle, ShieldX, Upload } from 'lucide-react';
-
-type DemoStatus = AnalyzerDemoStatus | 'missing' | 'uploading';
-type AnalyzerStatusResult =
-  | { status: 'success'; analyzerMatchId: number }
-  | { status: Exclude<DemoStatus, 'success'> };
+import { useAnalyzerStatus } from '@/hooks/useAnalyzerStatus';
 
 const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
-  const queryClient = useQueryClient();
-  const statusQueryKey = ['analyzer-status', match.matchId, match.matchRound];
-
-  const {
-    data: demoData,
-    isLoading,
-    isError,
-    error,
-  } = useQuery<AnalyzerStatusResult, Error>({
-    queryKey: statusQueryKey,
-    queryFn: async () => {
-      const { exists, demos } = await fetchAnalyzerGameStatus(match.matchId);
-      if (!exists) return { status: 'missing' };
-
-      const demo = demos[match.matchRound - 1];
-
-      if (demo.status === 'success') {
-        const matchId = await getAnalyzerMatchId(demo.demoId);
-
-        if (matchId === null) {
-          throw new Error(
-            "Expected analyzerMatchId for 'success' demo, but got null"
-          );
-        }
-
-        return {
-          status: 'success',
-          analyzerMatchId: matchId,
-        };
-      }
-
-      return { status: demo.status };
-    },
-    refetchInterval: (query) =>
-      query.state.data?.status === 'queued' ||
-      query.state.data?.status === 'processing'
-        ? 5000
-        : false,
-  });
-
+  const { statusQuery, uploadMutation } = useAnalyzerStatus(match);
+  const { data: demoData, isLoading, isError, error } = statusQuery;
   const {
     mutate,
     isPending: isUploading,
     isError: isUploadError,
     error: uploadError,
-  } = useMutation({
-    mutationFn: async () => {
-      const faceitMatch = await fetchFaceitMatch(match.matchId);
-      const { id: faceitMatchId, demoURLs } = faceitMatch;
-
-      if (!demoURLs) throw new Error('No demo URLs found');
-      const demoUrl = demoURLs[match.matchRound - 1];
-
-      try {
-        await sendDemoToAnalyzer(faceitMatchId, demoUrl);
-      } catch (error) {
-        if (error instanceof HttpError && error.status === 403) {
-          console.warn('Cookie expired — refreshing session and retrying');
-        }
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.setQueryData<AnalyzerStatusResult>(statusQueryKey, {
-        status: 'queued',
-      });
-      queryClient
-        .invalidateQueries({ queryKey: statusQueryKey })
-        .catch((err) => console.error('Invalidate failed:', err));
-    },
-  });
+  } = uploadMutation;
 
   return (
     <TableRow
