@@ -45,6 +45,7 @@ export function useAnalyzerStatus(match: {
       query.state.data?.status === 'processing'
         ? 5000
         : false,
+    refetchOnWindowFocus: false,
   });
 
   const uploadMutation = useMutation({

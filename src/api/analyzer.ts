@@ -29,6 +29,8 @@ const analyzerGameStatusSchema = z.object({
 });
 export type AnalyzerGameStatus = z.infer<typeof analyzerGameStatusSchema>;
 
+const analyzerGameStatusesSchema = z.array(analyzerGameStatusSchema);
+
 const sendDemoUrlResponseSchema = z
   .object({
     demo_id: z.string(),
@@ -62,6 +64,27 @@ export const fetchAnalyzerGameStatus = async (matchId: string) => {
     return analyzerGameStatusSchema.parse(await response.json());
   } catch (error) {
     console.error('Error fetching analyzer status:', error);
+    throw error;
+  }
+};
+
+export const fetchAnalyzerGameStatuses = async (matchIds: string[]) => {
+  if (!matchIds.length) {
+    throw new Error('fetchAnalyzerGamesStatus: No match IDs provided');
+  }
+
+  const queryParam = matchIds.map(encodeURIComponent).join(',');
+  const url = `${COLLECTOR_URL}/faceit/matches?ids=${queryParam}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return analyzerGameStatusesSchema.parse(await response.json());
+  } catch (error) {
+    console.error('Error fetching multiple analyzer statuses:', error);
     throw error;
   }
 };

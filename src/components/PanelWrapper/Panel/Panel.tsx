@@ -14,7 +14,7 @@ import {
   fetchFaceitUser,
   fetchFaceitMatches,
 } from '@/api/faceit';
-import { FormEvent, useState } from 'react';
+import { FormEvent, memo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle } from 'lucide-react';
 
@@ -36,6 +36,7 @@ const Panel = () => {
     queryKey: ['faceit-matches', user?.id],
     queryFn: () => fetchFaceitMatches(user!.id),
     enabled: !!user,
+    refetchOnWindowFocus: false,
   });
 
   const handleSearch = (e: FormEvent) => {
@@ -46,7 +47,7 @@ const Panel = () => {
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="grid h-full grid-rows-[auto,_1fr] flex-col">
       <div className="rounded-t-xl border border-neutral-800 bg-neutral-900 p-4">
         <a href="https://csanalyzer.gg/">
           <img
@@ -56,7 +57,7 @@ const Panel = () => {
           />
         </a>
       </div>
-      <div className="flex h-full w-full flex-col justify-start gap-4 rounded-b-xl border border-t-0 border-neutral-800 bg-neutral-950 p-4">
+      <div className="flex h-full flex-col justify-start gap-4 overflow-auto rounded-b-xl border border-t-0 border-neutral-800 bg-neutral-950 p-4">
         <form
           className="grid w-full grid-cols-[3fr,_2fr] items-center gap-2"
           onSubmit={handleSearch}
