@@ -1,6 +1,6 @@
 import Analayzer from './components/Analyzer/Analyzer';
-import SidebarTrigger from './components/Panel/SidebarTrigger';
-import TopbarTrigger from './components/Panel/TopbarTrigger';
+import SidebarTrigger from './components/PanelWrapper/SidebarTrigger';
+import TopbarTrigger from './components/PanelWrapper/TopbarTrigger';
 import { createRoot } from 'react-dom/client';
 import { observeForGameInfoSection } from './page/matchObserver';
 import { observeForPanelSection } from './page/panelObserver';

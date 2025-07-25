@@ -18,7 +18,7 @@ import { FormEvent, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle } from 'lucide-react';
 
-const PanelContent = () => {
+const Panel = () => {
   const [nickname, setNickname] = useState('');
 
   const userMutation = useMutation<FaceitUser, Error, string>({
@@ -125,4 +125,4 @@ const PanelContent = () => {
   );
 };
 
-export default PanelContent;
+export default Panel;

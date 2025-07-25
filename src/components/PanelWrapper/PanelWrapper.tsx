@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import PanelContent from './PanelContent/PanelContent';
+import Panel from './Panel/Panel';
 
-const Panel = () => {
+const PanelWrapper = () => {
   const [open, setOpen] = useState(false);
 
   const panelRef = useRef<HTMLDivElement>(null);
@@ -54,10 +54,10 @@ const Panel = () => {
         ref={panelRef}
         className="absolute right-[4.5rem] top-0 z-50 h-screen w-96 py-4 transition-opacity data-[state=closed]:pointer-events-none data-[state=open]:pointer-events-auto data-[state=closed]:opacity-0 data-[state=open]:opacity-100"
       >
-        <PanelContent />
+        <Panel />
       </div>
     </div>
   );
 };
 
-export default Panel;
+export default PanelWrapper;
