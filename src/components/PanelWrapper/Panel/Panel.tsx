@@ -40,16 +40,17 @@ const Panel = () => {
     refetchOnWindowFocus: false,
   });
 
+  const matchKey = matches
+    ?.map((m) => `${m.matchId}-${m.matchRound}`)
+    .join(',');
+
   const {
     data: demoStates,
     isFetching: isLoadingDemos,
     isError: isDemosError,
     error: demosError,
   } = useQuery<Map<string, AnalyzerDemoState | undefined>>({
-    queryKey: [
-      'analyzer-statuses',
-      matches?.map((m) => `${m.matchId}-${m.matchRound}`),
-    ],
+    queryKey: ['analyzer-statuses', matchKey],
     queryFn: async () => {
       const uniqueMatchIds = Array.from(
         new Set(matches!.map((m) => m.matchId))
@@ -135,6 +136,12 @@ const Panel = () => {
         {isMatchesError && (
           <div className="text-sm text-red-500">
             Error loading matches: {matchesError.message}
+          </div>
+        )}
+
+        {isDemosError && (
+          <div className="text-sm text-red-500">
+            Error loading demo states: {demosError.message}
           </div>
         )}
 

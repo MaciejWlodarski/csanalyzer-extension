@@ -18,7 +18,12 @@ export function useAnalyzerStatus(
   demo?: AnalyzerDemoState
 ) {
   const queryClient = useQueryClient();
-  const statusQueryKey = ['analyzer-status', match.matchId, match.matchRound];
+  const statusQueryKey = [
+    'analyzer-status',
+    match.matchId,
+    match.matchRound,
+    demo?.demoId,
+  ];
 
   const getStatusFromDemo = async (
     demoState: AnalyzerDemoState
