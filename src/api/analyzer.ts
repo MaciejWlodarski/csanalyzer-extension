@@ -18,9 +18,7 @@ const analyzerDemoStateSchema = z
     demo_url: z.string(),
     quota_exceeded: z.boolean(),
   })
-  .transform((data) => {
-    return camelcaseKeys(data, { deep: true });
-  });
+  .transform((data) => camelcaseKeys(data, { deep: true }));
 export type AnalyzerDemoState = z.infer<typeof analyzerDemoStateSchema>;
 
 const analyzerGameStatusSchema = z.object({
@@ -29,7 +27,14 @@ const analyzerGameStatusSchema = z.object({
 });
 export type AnalyzerGameStatus = z.infer<typeof analyzerGameStatusSchema>;
 
-const analyzerGameStatusesSchema = z.array(analyzerGameStatusSchema);
+const analyzerGameStatusWithIdSchema = analyzerGameStatusSchema
+  .extend({ match_id: z.string() })
+  .transform((data) => camelcaseKeys(data, { deep: true }));
+
+export type AnalyzerGameStatusWithId = z.infer<
+  typeof analyzerGameStatusWithIdSchema
+>;
+const analyzerGameStatusesSchema = z.array(analyzerGameStatusWithIdSchema);
 
 const sendDemoUrlResponseSchema = z
   .object({

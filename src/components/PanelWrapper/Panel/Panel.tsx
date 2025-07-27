@@ -14,9 +14,10 @@ import {
   fetchFaceitUser,
   fetchFaceitMatches,
 } from '@/api/faceit';
-import { FormEvent, memo, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoaderCircle } from 'lucide-react';
+import { AnalyzerDemoState, fetchAnalyzerGameStatuses } from '@/api/analyzer';
 
 const Panel = () => {
   const [nickname, setNickname] = useState('');
@@ -36,6 +37,42 @@ const Panel = () => {
     queryKey: ['faceit-matches', user?.id],
     queryFn: () => fetchFaceitMatches(user!.id),
     enabled: !!user,
+    refetchOnWindowFocus: false,
+  });
+
+  const {
+    data: demoStates,
+    isFetching: isLoadingDemos,
+    isError: isDemosError,
+    error: demosError,
+  } = useQuery<Map<string, AnalyzerDemoState | undefined>>({
+    queryKey: [
+      'analyzer-statuses',
+      matches?.map((m) => `${m.matchId}-${m.matchRound}`),
+    ],
+    queryFn: async () => {
+      const uniqueMatchIds = Array.from(
+        new Set(matches!.map((m) => m.matchId))
+      );
+
+      const statuses = await fetchAnalyzerGameStatuses(uniqueMatchIds);
+      const result = new Map<string, AnalyzerDemoState | undefined>();
+
+      for (const m of matches!) {
+        const matchStatus = statuses.find((s) => s.matchId === m.matchId);
+
+        if (!matchStatus || !matchStatus.exists) {
+          result.set(m.matchId, undefined);
+          continue;
+        }
+
+        const demo = matchStatus.demos[m.matchRound - 1];
+        result.set(m.matchId, demo);
+      }
+
+      return result;
+    },
+    enabled: !!matches && matches.length > 0,
     refetchOnWindowFocus: false,
   });
 
@@ -115,9 +152,17 @@ const Panel = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {matches.map((match) => (
-                <DemoStatusRow key={match.matchId} match={match} />
-              ))}
+              {matches.map((match) => {
+                const demo = demoStates?.get(match.matchId);
+                return (
+                  <DemoStatusRow
+                    key={`${match.matchId}-${match.matchRound}`}
+                    match={match}
+                    demo={demo}
+                    isBatchLoading={isLoadingDemos}
+                  />
+                );
+              })}
             </TableBody>
           </Table>
         )}

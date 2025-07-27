@@ -1,12 +1,21 @@
 import { formatDate } from '..';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { FaceitMatchStats } from '@/api/faceit';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, LoaderCircle, ShieldX, Upload } from 'lucide-react';
 import { useAnalyzerStatus } from '@/hooks/useAnalyzerStatus';
+import { FaceitMatchStats } from '@/api/faceit';
+import { AnalyzerDemoState } from '@/api/analyzer';
 
-const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
-  const { statusQuery, uploadMutation } = useAnalyzerStatus(match);
+const DemoStatusRow = ({
+  match,
+  demo,
+  isBatchLoading,
+}: {
+  match: FaceitMatchStats;
+  demo?: AnalyzerDemoState;
+  isBatchLoading: boolean;
+}) => {
+  const { statusQuery, uploadMutation } = useAnalyzerStatus(match, demo);
   const { data: demoData, isLoading, isError, error } = statusQuery;
   const {
     mutate,
@@ -23,7 +32,7 @@ const DemoStatusRow = ({ match }: { match: FaceitMatchStats }) => {
       <TableCell>{formatDate(match.date)}</TableCell>
       <TableCell>{match.score}</TableCell>
       <TableCell>
-        {isLoading || !demoData ? (
+        {isBatchLoading || isLoading || !demoData ? (
           <Button className="w-full" size="sm" disabled>
             <LoaderCircle className="animate-spin" />
             Loading...
