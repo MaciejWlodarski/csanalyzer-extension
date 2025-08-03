@@ -37,13 +37,14 @@ export function useAnalyzerStatus(
       }
       return { status: 'success', analyzerMatchId };
     }
+    if (demoState.quotaExceeded) return { status: 'missing' };
     return { status: demoState.status };
   };
 
   const statusQuery = useQuery<AnalyzerStatusResult, Error>({
     queryKey: statusQueryKey,
     queryFn: async () => {
-      if (demo) return getStatusFromDemo(demo);
+      if (demo && !demo.quotaExceeded) return getStatusFromDemo(demo);
 
       const { exists, demos } = await fetchAnalyzerGameStatus(match.matchId);
       if (!exists) return { status: 'missing' };
