@@ -1,5 +1,3 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -8,25 +6,20 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import DemoStatusRow from './DemoStatusRow/DemoStatusRow';
-import {
-  FaceitMatchStats,
-  FaceitUser,
-  fetchFaceitUser,
-  fetchFaceitMatches,
-} from '@/api/faceit';
-import { FormEvent, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { LoaderCircle } from 'lucide-react';
+import { FaceitMatchStats, FaceitUser, fetchFaceitMatches } from '@/api/faceit';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { AnalyzerDemoState, fetchAnalyzerGameStatuses } from '@/api/analyzer';
+import { Button } from '@/components/ui/button';
+import Search from './Search/Search';
+import Logo from '@/components/Icons/Logo';
+import Icon from '@/components/Icons/Icon';
+import SteamIcon from '@/components/Icons/SteamIcon';
+import FaceitIcon from '@/components/Icons/FaceitIcon';
 
 const Panel = () => {
-  const [nickname, setNickname] = useState('');
-
-  const userMutation = useMutation<FaceitUser, Error, string>({
-    mutationFn: fetchFaceitUser,
-  });
-
-  const user = userMutation.data;
+  const [user, setUser] = useState<FaceitUser | null>(null);
+  const steamId32 = BigInt(user?.games.cs2?.game_id ?? 0) - 76561197960265728n;
 
   const {
     data: matches,
@@ -77,58 +70,57 @@ const Panel = () => {
     refetchOnWindowFocus: false,
   });
 
-  const handleSearch = (e: FormEvent) => {
-    e.preventDefault();
-    if (nickname.trim()) {
-      userMutation.mutate(nickname.trim());
-    }
-  };
-
   return (
     <div className="grid h-full grid-rows-[auto,_1fr] flex-col">
       <div className="rounded-t-xl border border-neutral-800 bg-neutral-900 p-4">
         <a href="https://csanalyzer.gg/">
-          <img
-            src={chrome.runtime.getURL('assets/logo.svg')}
-            alt="CSAnalyzer.gg"
-            className="h-5 w-min"
-          />
+          <Logo className="m-min h-5" />
         </a>
       </div>
       <div className="flex h-full flex-col justify-start gap-4 overflow-auto rounded-b-xl border border-t-0 border-neutral-800 bg-neutral-950 p-4">
-        <form
-          className="grid w-full grid-cols-[3fr,_2fr] items-center gap-2"
-          onSubmit={handleSearch}
-        >
-          <Input
-            type="text"
-            placeholder="Nickname"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-          <Button type="submit" disabled={userMutation.isPending}>
-            {userMutation.isPending ? (
-              <>
-                <LoaderCircle className="animate-spin" />
-                Please wait
-              </>
-            ) : (
-              'Search'
-            )}
-          </Button>
-        </form>
+        <Search onSuccess={setUser} />
 
-        {userMutation.isError && (
-          <div className="text-sm text-red-500">
-            Error: {userMutation.error.message}
-          </div>
-        )}
-
-        {user && (
+        {user && user.games.cs2 && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
               <img src={user.avatar} className="size-12 rounded-lg" />
-              <span className="font-bold">{user.nickname}</span>
+              <div className="flex w-full flex-col gap-1">
+                <span className="font-bold">{user.nickname}</span>
+                <div className="flex gap-1">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="size-6"
+                    asChild
+                  >
+                    <a href={`http://csanalyzer.gg/app/profile/${steamId32}`}>
+                      <Icon className="m-min h-4" />
+                    </a>
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="size-6"
+                    asChild
+                  >
+                    <a
+                      href={`https://steamcommunity.com/profiles/${user.games.cs2.game_id}`}
+                    >
+                      <SteamIcon className="m-min h-4" />
+                    </a>
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="size-6"
+                    asChild
+                  >
+                    <a href={`https://www.faceit.com/players/${user.nickname}`}>
+                      <FaceitIcon className="m-min h-4" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -152,7 +144,7 @@ const Panel = () => {
         {matches && (
           <Table className="table-fixed">
             <TableHeader>
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableHead className="w-[30%]">Date</TableHead>
                 <TableHead className="w-[20%]">Score</TableHead>
                 <TableHead className="w-1/2">Status</TableHead>

@@ -107,6 +107,14 @@ const faceitUserSchema = z.object({
   id: z.string(),
   avatar: z.string(),
   nickname: z.string(),
+  games: z.object({
+    cs2: z
+      .object({
+        game_id: z.string(),
+        faceit_elo: z.number(),
+      })
+      .optional(),
+  }),
 });
 export type FaceitUser = z.infer<typeof faceitUserSchema>;
 
