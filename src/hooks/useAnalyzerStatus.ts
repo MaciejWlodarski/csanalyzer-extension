@@ -22,6 +22,7 @@ export function useAnalyzerStatus(
     'analyzer-status',
     match.matchId,
     match.matchRound,
+    !!demo,
     demo?.demoId,
   ];
 

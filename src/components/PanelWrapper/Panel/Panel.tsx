@@ -43,7 +43,7 @@ const Panel = () => {
     isError: isDemosError,
     error: demosError,
   } = useQuery<Map<string, AnalyzerDemoState | undefined>>({
-    queryKey: ['analyzer-statuses', matchKey],
+    queryKey: ['analyzer-statuses', !!matches, matchKey],
     queryFn: async () => {
       const uniqueMatchIds = Array.from(
         new Set(matches!.map((m) => m.matchId))

@@ -75,7 +75,7 @@ window.addEventListener('urlChange', (event) => {
         />
       );
     }, urlMatchId);
-  });
+  })();
 });
 
 const queryClient = new QueryClient();
