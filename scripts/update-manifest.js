@@ -1,9 +1,17 @@
-import fs from "fs";
+import fs from 'fs';
 
-const pkg = JSON.parse(fs.readFileSync("./package.json", "utf-8"));
-const manifestPath = "./public/manifest.json";
-const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf-8'));
+const manifestPath = './public/manifest.json';
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
 
-manifest.version = pkg.version;
+const [versionCore, prerelease] = pkg.version.split('-');
 
-fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+manifest.version = versionCore;
+
+if (prerelease) {
+  manifest.version_name = pkg.version;
+} else {
+  delete manifest.version_name;
+}
+
+fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
