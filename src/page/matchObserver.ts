@@ -6,7 +6,7 @@ const rootSelector = (matchId: string, index: number) =>
   `.${ROOT_CLASS}[data-match-id="${matchId}"][data-section-index="${index}"]`;
 
 const findExistingRoot = (matchId: string, index: number) =>
-  document.querySelector(rootSelector(matchId, index)) as HTMLDivElement | null;
+  document.querySelector(rootSelector(matchId, index));
 
 const createRootElement = (
   section: Element,
