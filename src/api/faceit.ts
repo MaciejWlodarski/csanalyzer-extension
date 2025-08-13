@@ -59,21 +59,36 @@ type InterceptedPayload =
   | { label: 'match'; payload: FaceitMatch }
   | { label: 'stats'; payload: FaceitMatchStats[] };
 
+type InterceptedXhr = XMLHttpRequest & { _interceptedUrl?: string };
+
 export const interceptApiData = (
   callback: (data: InterceptedPayload) => void
 ): void => {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const originalOpen = XMLHttpRequest.prototype.open;
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const originalSend = XMLHttpRequest.prototype.send;
 
-  XMLHttpRequest.prototype.open = function (method: string, url: string) {
-    (this as any)._interceptedUrl = url;
-    return originalOpen.apply(this, arguments as any);
+  XMLHttpRequest.prototype.open = function (
+    this: InterceptedXhr,
+    method: string,
+    url: string | URL,
+    async?: boolean,
+    username?: string | null,
+    password?: string | null
+  ): void {
+    this._interceptedUrl = typeof url === 'string' ? url : url.toString();
+
+    Reflect.apply(originalOpen, this, [method, url, async, username, password]);
   };
 
-  XMLHttpRequest.prototype.send = function () {
-    this.addEventListener('readystatechange', function () {
+  XMLHttpRequest.prototype.send = function (
+    this: InterceptedXhr,
+    ...args: Parameters<XMLHttpRequest['send']>
+  ): void {
+    this.addEventListener('readystatechange', function (this: InterceptedXhr) {
       if (this.readyState === 4 && this.status === 200) {
-        const url: string = (this as any)._interceptedUrl;
+        const url = this._interceptedUrl ?? '';
 
         const isMatchEndpoint = url.includes('/api/match/v2/match/');
         const isStatsGamesEndpoint =
@@ -83,13 +98,21 @@ export const interceptApiData = (
 
         if (isMatchEndpoint || isStatsGamesEndpoint) {
           try {
-            const response = JSON.parse(this.responseText);
+            if (isMatchEndpoint) {
+              const matchResponseSchema = z.object({
+                payload: faceitMatchSchema,
+              });
 
-            if (isMatchEndpoint && response?.payload) {
-              const parsed = faceitMatchSchema.parse(response.payload);
-              callback({ label: 'match', payload: parsed });
+              const parsedResponse = matchResponseSchema.parse(
+                JSON.parse(this.responseText)
+              );
+
+              callback({ label: 'match', payload: parsedResponse.payload });
             } else if (isStatsGamesEndpoint) {
-              const parsed = faceitMatchStatsSchema.array().parse(response);
+              const parsed = faceitMatchStatsSchema
+                .array()
+                .parse(JSON.parse(this.responseText));
+
               callback({ label: 'stats', payload: parsed });
             }
           } catch (error) {
@@ -99,7 +122,7 @@ export const interceptApiData = (
       }
     });
 
-    return originalSend.apply(this, arguments as any);
+    Reflect.apply(originalSend, this, args);
   };
 };
 
