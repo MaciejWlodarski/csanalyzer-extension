@@ -2,7 +2,7 @@ import Analayzer from './components/Analyzer/Analyzer';
 import SidebarTrigger from './components/PanelWrapper/SidebarTrigger';
 import TopbarTrigger from './components/PanelWrapper/TopbarTrigger';
 import { createRoot } from 'react-dom/client';
-import { observeForGameInfoSection } from './page/matchObserver';
+import { observeForGameInfoSections } from './page/matchObserver';
 import { observeForPanelSection } from './page/panelObserver';
 import { injectScript } from './utils/scripts';
 import { FaceitMatch } from './api/faceit';
@@ -25,7 +25,7 @@ window.addEventListener('matchApi', (event) => {
     }
   });
 
-  observeForGameInfoSection((rootElement) => {
+  observeForGameInfoSections((rootElement) => {
     createRoot(rootElement).render(
       <QueryClientProvider client={queryClient}>
         <Analayzer matchData={matchApiResponse} />
@@ -61,7 +61,7 @@ window.addEventListener('urlChange', (event) => {
     }
   });
 
-  observeForGameInfoSection((rootElement) => {
+  observeForGameInfoSections((rootElement) => {
     createRoot(rootElement).render(
       <QueryClientProvider client={queryClient}>
         <Analayzer matchData={matchApiResponse} />
