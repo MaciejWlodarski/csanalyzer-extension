@@ -1,40 +1,49 @@
 let activeObserver: MutationObserver | null = null;
-let currentRootElement: HTMLDivElement | null = null;
 
-const createRootElement = (section: Element, matchId: string) => {
+const ROOT_CLASS = 'react-root-match';
+
+const rootSelector = (matchId: string, index: number) =>
+  `.${ROOT_CLASS}[data-match-id="${matchId}"][data-section-index="${index}"]`;
+
+const findExistingRoot = (matchId: string, index: number) =>
+  document.querySelector(rootSelector(matchId, index)) as HTMLDivElement | null;
+
+const createRootElement = (
+  section: Element,
+  matchId: string,
+  index: number
+) => {
   const root = document.createElement('div');
-  root.id = 'react-root-match';
+  root.classList.add(ROOT_CLASS);
   root.dataset.matchId = matchId;
+  root.dataset.sectionIndex = String(index);
   section.parentNode?.insertBefore(root, section.nextSibling);
   return root;
 };
 
-const ensureSingleRootAtLastSection = (
+const ensureRootsForAllSections = (
   callback: (root: HTMLDivElement) => void,
   matchId: string
-): boolean => {
+): number => {
   const sections = document.querySelectorAll('div[class^="Finished__Section"]');
-  if (sections.length === 0) return false;
 
-  const lastSection = sections[sections.length - 1];
+  sections.forEach((section, index) => {
+    const existing = findExistingRoot(matchId, index);
+    const isPlacedAfterThisSection =
+      existing && section.nextElementSibling === existing;
 
-  if (currentRootElement && document.body.contains(currentRootElement)) {
-    const isAlreadyAfterLast =
-      lastSection.nextElementSibling === currentRootElement;
-
-    if (!isAlreadyAfterLast) {
-      lastSection.parentNode?.insertBefore(
-        currentRootElement,
-        lastSection.nextSibling
-      );
+    if (existing) {
+      if (!isPlacedAfterThisSection) {
+        section.parentNode?.insertBefore(existing, section.nextSibling);
+      }
+      return;
     }
-    return true;
-  }
 
-  const root = createRootElement(lastSection, matchId);
-  currentRootElement = root;
-  callback(root);
-  return true;
+    const root = createRootElement(section, matchId, index);
+    callback(root);
+  });
+
+  return sections.length;
 };
 
 export const observeForGameInfoSections = (
@@ -54,7 +63,7 @@ export const observeForGameInfoSections = (
 
   const tick = () => {
     requestAnimationFrame(() => {
-      ensureSingleRootAtLastSection(callback, matchId);
+      ensureRootsForAllSections(callback, matchId);
     });
   };
 

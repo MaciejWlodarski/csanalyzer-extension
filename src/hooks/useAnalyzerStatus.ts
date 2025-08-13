@@ -47,15 +47,17 @@ export function useAnalyzerStatus(
   const statusQuery = useQuery<AnalyzerStatusResult, Error>({
     queryKey: statusQueryKey,
     queryFn: async () => {
-      if (demo && !demo.quotaExceeded) return getStatusFromDemo(demo);
+      if (demo?.quotaExceeded) return { status: 'missing' };
+      if (demo?.status === 'failed') return { status: 'failed' };
+      if (demo?.status === 'success') return getStatusFromDemo(demo);
 
       const { exists, demos } = await fetchAnalyzerGameStatus(matchId);
       if (!exists) return { status: 'missing' };
-
-      const fetchedDemo = demos[demoIdx];
-      if (fetchedDemo.quotaExceeded) return { status: 'missing' };
-
-      return getStatusFromDemo(fetchedDemo);
+      const fetched = demoUrl
+        ? demos.find((d) => d.demoUrl === demoUrl)
+        : demos[demoIdx];
+      if (!fetched || fetched.quotaExceeded) return { status: 'missing' };
+      return getStatusFromDemo(fetched);
     },
     refetchInterval: (query) =>
       query.state.data?.status === 'queued' ||

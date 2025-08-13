@@ -78,7 +78,7 @@ export default {
     tailwindcssAnimate,
     scopedPreflightStyles({
       isolationStrategy: isolateInsideOfContainer([
-        '#react-root-match',
+        '.react-root-match',
         '#react-root-panel',
       ]),
     }),

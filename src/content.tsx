@@ -18,7 +18,7 @@ window.addEventListener('matchApi', (event) => {
   matchApiResponse = event.detail;
   const matchId = matchApiResponse.id;
 
-  document.querySelectorAll('#react-root-match').forEach((element) => {
+  document.querySelectorAll('.react-root-match').forEach((element) => {
     const el = element as HTMLElement;
     if (el.dataset.matchId !== matchId) {
       el.remove();
@@ -48,13 +48,13 @@ window.addEventListener('urlChange', (event) => {
   const apiMatchId = matchApiResponse.id;
 
   if (urlMatchId !== apiMatchId) {
-    document.querySelectorAll('#react-root-match').forEach((element) => {
+    document.querySelectorAll('.react-root-match').forEach((element) => {
       element.remove();
     });
     return;
   }
 
-  document.querySelectorAll('#react-root-match').forEach((element) => {
+  document.querySelectorAll('.react-root-match').forEach((element) => {
     const el = element as HTMLElement;
     if (el.dataset.matchId !== urlMatchId) {
       el.remove();
