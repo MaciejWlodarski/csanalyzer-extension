@@ -5,80 +5,70 @@ import { createRoot } from 'react-dom/client';
 import { observeForGameInfoSection } from './page/matchObserver';
 import { observeForPanelSection } from './page/panelObserver';
 import { injectScript } from './utils/scripts';
-import { fetchAnalyzerGameStatus } from './api/analyzer';
 import { FaceitMatch } from './api/faceit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 
 injectScript();
 
+const queryClient = new QueryClient();
 let matchApiResponse: FaceitMatch;
 
 window.addEventListener('matchApi', (event) => {
-  void (async () => {
-    matchApiResponse = event.detail;
-    const matchId = matchApiResponse.id;
+  matchApiResponse = event.detail;
+  const matchId = matchApiResponse.id;
 
-    document.querySelectorAll('#react-root-match').forEach((element) => {
-      const el = element as HTMLElement;
-      if (el.dataset.matchId !== matchId) {
-        el.remove();
-      }
-    });
+  document.querySelectorAll('#react-root-match').forEach((element) => {
+    const el = element as HTMLElement;
+    if (el.dataset.matchId !== matchId) {
+      el.remove();
+    }
+  });
 
-    const analyzerGameStatus = await fetchAnalyzerGameStatus(matchId);
-
-    observeForGameInfoSection((rootElement) => {
-      createRoot(rootElement).render(
-        <Analayzer
-          matchData={matchApiResponse}
-          analyzerGameStatus={analyzerGameStatus}
-        />
-      );
-    }, matchId);
-  })();
+  observeForGameInfoSection((rootElement) => {
+    createRoot(rootElement).render(
+      <QueryClientProvider client={queryClient}>
+        <Analayzer matchData={matchApiResponse} />
+      </QueryClientProvider>
+    );
+  }, matchId);
 });
 
 const extractMatchIdFromUrl = (url: string) => {
-  const match = url.match(/faceit\.com\/[^/]+\/cs2\/room\/(1-[a-f0-9-]+)/i);
+  const match = url.match(
+    /faceit\.com\/[^/]+\/cs2\/room\/(1-[a-f0-9-]+)(?:\/)?$/i
+  );
   return match ? match[1] : null;
 };
 
 window.addEventListener('urlChange', (event) => {
-  void (async () => {
-    if (!matchApiResponse) return;
+  if (!matchApiResponse) return;
 
-    const urlMatchId = extractMatchIdFromUrl(event.detail);
-    const apiMatchId = matchApiResponse.id;
+  const urlMatchId = extractMatchIdFromUrl(event.detail);
+  const apiMatchId = matchApiResponse.id;
 
-    if (urlMatchId !== apiMatchId) {
-      document.querySelectorAll('#react-root-match').forEach((element) => {
-        element.remove();
-      });
-      return;
-    }
-
+  if (urlMatchId !== apiMatchId) {
     document.querySelectorAll('#react-root-match').forEach((element) => {
-      const el = element as HTMLElement;
-      if (el.dataset.matchId !== urlMatchId) {
-        el.remove();
-      }
+      element.remove();
     });
+    return;
+  }
 
-    const analyzerGameStatus = await fetchAnalyzerGameStatus(urlMatchId);
+  document.querySelectorAll('#react-root-match').forEach((element) => {
+    const el = element as HTMLElement;
+    if (el.dataset.matchId !== urlMatchId) {
+      el.remove();
+    }
+  });
 
-    observeForGameInfoSection((rootElement) => {
-      createRoot(rootElement).render(
-        <Analayzer
-          matchData={matchApiResponse}
-          analyzerGameStatus={analyzerGameStatus}
-        />
-      );
-    }, urlMatchId);
-  })();
+  observeForGameInfoSection((rootElement) => {
+    createRoot(rootElement).render(
+      <QueryClientProvider client={queryClient}>
+        <Analayzer matchData={matchApiResponse} />
+      </QueryClientProvider>
+    );
+  }, urlMatchId);
 });
-
-const queryClient = new QueryClient();
 
 observeForPanelSection(({ root, pos }) => {
   createRoot(root).render(

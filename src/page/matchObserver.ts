@@ -1,21 +1,12 @@
 let activeObserver: MutationObserver | null = null;
 let currentRootElement: HTMLDivElement | null = null;
 
-const createRootElement = (
-  gameInfoSection: Element,
-  matchId: string
-): HTMLDivElement => {
+const createRootElement = (section: Element, matchId: string) => {
   const rootElement = document.createElement('div');
   rootElement.id = 'react-root-match';
   rootElement.dataset.matchId = matchId;
 
-  if (gameInfoSection.parentNode) {
-    gameInfoSection.parentNode.insertBefore(
-      rootElement,
-      gameInfoSection.nextSibling
-    );
-  }
-
+  section.parentNode?.insertBefore(rootElement, section.nextSibling);
   currentRootElement = rootElement;
   return rootElement;
 };
@@ -23,44 +14,60 @@ const createRootElement = (
 const handleGameInfoSection = (
   callback: (root: HTMLDivElement) => void,
   matchId: string
-): boolean => {
-  const sections = document.querySelectorAll('div[class^="Finished__Section"]');
-  const gameInfoSection = sections[sections.length - 1];
-
-  if (gameInfoSection) {
-    const rootElement = createRootElement(gameInfoSection, matchId);
-    callback(rootElement);
+) => {
+  if (
+    currentRootElement?.dataset.matchId === matchId &&
+    document.body.contains(currentRootElement)
+  ) {
     return true;
   }
 
-  return false;
+  const sections = document.querySelectorAll('div[class^="Finished__Section"]');
+  const gameInfoSection = sections[sections.length - 1];
+  if (!gameInfoSection) return false;
+
+  const rootElement = createRootElement(gameInfoSection, matchId);
+  callback(rootElement);
+  return true;
 };
 
 export const observeForGameInfoSection = (
   callback: (root: HTMLDivElement) => void,
   matchId: string
-): void => {
-  if (activeObserver) {
-    activeObserver.disconnect();
-    activeObserver = null;
-  }
+) => {
+  activeObserver?.disconnect();
+  activeObserver = null;
 
-  if (currentRootElement) {
-    currentRootElement.remove();
+  if (currentRootElement && !document.body.contains(currentRootElement)) {
     currentRootElement = null;
   }
 
   if (handleGameInfoSection(callback, matchId)) {
-    return;
+    return () => {
+      activeObserver?.disconnect();
+      activeObserver = null;
+      currentRootElement?.remove();
+      currentRootElement = null;
+    };
   }
 
+  const target = document.body ?? document.documentElement;
   const observer = new MutationObserver(() => {
-    if (handleGameInfoSection(callback, matchId)) {
-      observer.disconnect();
-      activeObserver = null;
-    }
+    requestAnimationFrame(() => {
+      if (handleGameInfoSection(callback, matchId)) {
+        observer.disconnect();
+        activeObserver = null;
+      }
+    });
   });
 
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(target, { childList: true, subtree: true });
   activeObserver = observer;
+
+  return () => {
+    observer.disconnect();
+    if (activeObserver === observer) activeObserver = null;
+    currentRootElement?.remove();
+    currentRootElement = null;
+  };
 };

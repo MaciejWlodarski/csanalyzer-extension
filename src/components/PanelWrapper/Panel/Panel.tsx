@@ -72,10 +72,13 @@ const Panel = () => {
 
   return (
     <div className="grid h-full grid-rows-[auto,_1fr] flex-col">
-      <div className="rounded-t-xl border border-neutral-800 bg-neutral-900 p-4">
+      <div className="flex items-center justify-between rounded-t-xl border border-neutral-800 bg-neutral-900 p-4">
         <a href="https://csanalyzer.gg/">
           <Logo className="m-min h-5" />
         </a>
+        <span className="text-xs font-bold text-neutral-500">
+          v{__APP_VERSION__}
+        </span>
       </div>
       <div className="flex h-full flex-col justify-start gap-4 overflow-auto rounded-b-xl border border-t-0 border-neutral-800 bg-neutral-950 p-4">
         <Search onSuccess={setUser} />

@@ -1,40 +1,60 @@
-import Map from './Map/Map';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { FaceitMatch, MapVetoEntity } from '@/api/faceit';
-import { AnalyzerDemoState, AnalyzerGameStatus } from '@/api/analyzer';
+import { useQuery } from '@tanstack/react-query';
+import { AnalyzerDemoState, fetchAnalyzerGameStatus } from '@/api/analyzer';
+import Demo from './Demo/Demo';
 
 export interface MapData {
   map: MapVetoEntity;
   demoUrl: string;
-  analyzerStatus: AnalyzerDemoState | null;
 }
 
-const Analayzer = ({
-  matchData,
-  analyzerGameStatus,
-}: {
-  matchData: FaceitMatch;
-  analyzerGameStatus: AnalyzerGameStatus;
-}) => {
-  const { voting, demoURLs: faceitDemoUrls, id: matchId } = matchData;
-  if (!voting || !faceitDemoUrls) return null;
+export const getMaps = (match: FaceitMatch) => {
+  const veto = match.voting?.map;
+  if (veto) {
+    return veto.pick.map((pick) => {
+      const m = veto.entities.find((m) => m.className === pick);
+      if (!m) throw new Error(`No entity for pick: ${pick}`);
+      return m;
+    });
+  }
 
-  const { map } = voting;
-  if (!map) return null;
+  const maps = match.matchCustom.tree.map.values.value;
+  if (Array.isArray(maps)) {
+    return maps;
+  }
 
-  const { demos: analyzerDemos } = analyzerGameStatus;
-  const { entities, pick } = map;
+  return maps ? [maps] : [];
+};
 
-  const maps: MapData[] = faceitDemoUrls.map((faceitDemoUrl, idx) => {
-    const map = entities.find((entity) => entity.className === pick[idx])!;
-    const analyzerStatus =
-      analyzerDemos.find(
-        ({ demoUrl: analyzerDemoUrl }) => faceitDemoUrl === analyzerDemoUrl
-      ) ?? null;
-    return { map, demoUrl: faceitDemoUrl, analyzerStatus };
+const Analayzer = ({ matchData }: { matchData: FaceitMatch }) => {
+  const { demoURLs: faceitDemoUrls, id: matchId } = matchData;
+  if (!faceitDemoUrls) return null;
+
+  const {
+    data: demoStates,
+    isFetching: isLoadingDemos,
+    isError: isDemosError,
+    error: demosError,
+  } = useQuery<Map<string, AnalyzerDemoState | undefined>>({
+    queryKey: ['match-page-analyzer-statuses', matchData.id],
+    queryFn: async () => {
+      const gameStatus = await fetchAnalyzerGameStatus(matchData.id);
+
+      return new Map(
+        faceitDemoUrls.map<[string, AnalyzerDemoState | undefined]>(
+          (demoUrl) => {
+            if (!gameStatus.exists) return [demoUrl, undefined];
+
+            const found = gameStatus.demos.find((s) => s.demoUrl === demoUrl);
+            return [demoUrl, found];
+          }
+        )
+      );
+    },
+    enabled: faceitDemoUrls.length > 0,
+    refetchOnWindowFocus: false,
   });
-
-  const singleMap = maps.length === 1;
 
   return (
     <div className="flex flex-col pb-8">
@@ -54,14 +74,25 @@ const Analayzer = ({
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 p-3">
-          {maps.map((mapData, idx) => (
-            <Map
-              key={idx}
-              matchId={matchId}
-              mapData={mapData}
-              single={singleMap}
-            />
-          ))}
+          {isDemosError && (
+            <div className="text-sm text-red-500">
+              Error loading demo states: {demosError.message}
+            </div>
+          )}
+
+          {faceitDemoUrls.map((demoUrl, idx) => {
+            const demo = demoStates?.get(demoUrl);
+            return (
+              <Demo
+                key={demoUrl}
+                matchId={matchId}
+                demoUrl={demoUrl}
+                demoIdx={idx}
+                demo={demo}
+                isBatchLoading={isLoadingDemos}
+              />
+            );
+          })}
         </CardContent>
       </Card>
     </div>

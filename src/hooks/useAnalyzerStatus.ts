@@ -5,7 +5,7 @@ import {
   getAnalyzerMatchId,
   sendDemoToAnalyzer,
 } from '@/api/analyzer';
-import { FaceitMatchStats, fetchFaceitMatch, HttpError } from '@/api/faceit';
+import { fetchFaceitMatch, HttpError } from '@/api/faceit';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type DemoStatus = AnalyzerDemoStatus | 'missing' | 'uploading';
@@ -14,14 +14,16 @@ type AnalyzerStatusResult =
   | { status: Exclude<DemoStatus, 'success'> };
 
 export function useAnalyzerStatus(
-  match: FaceitMatchStats,
-  demo?: AnalyzerDemoState
+  matchId: string,
+  demoIdx: number,
+  demo?: AnalyzerDemoState,
+  demoUrl?: string
 ) {
   const queryClient = useQueryClient();
   const statusQueryKey = [
     'analyzer-status',
-    match.matchId,
-    match.matchRound,
+    matchId,
+    demoIdx,
     !!demo,
     demo?.demoId,
   ];
@@ -47,10 +49,10 @@ export function useAnalyzerStatus(
     queryFn: async () => {
       if (demo && !demo.quotaExceeded) return getStatusFromDemo(demo);
 
-      const { exists, demos } = await fetchAnalyzerGameStatus(match.matchId);
+      const { exists, demos } = await fetchAnalyzerGameStatus(matchId);
       if (!exists) return { status: 'missing' };
 
-      const fetchedDemo = demos[match.matchRound - 1];
+      const fetchedDemo = demos[demoIdx];
       if (fetchedDemo.quotaExceeded) return { status: 'missing' };
 
       return getStatusFromDemo(fetchedDemo);
@@ -65,14 +67,17 @@ export function useAnalyzerStatus(
 
   const uploadMutation = useMutation({
     mutationFn: async () => {
-      const faceitMatch = await fetchFaceitMatch(match.matchId);
-      const { id: faceitMatchId, demoURLs } = faceitMatch;
+      let url = demoUrl;
+      if (!url) {
+        const faceitMatch = await fetchFaceitMatch(matchId);
+        const { demoURLs } = faceitMatch;
 
-      if (!demoURLs) throw new Error('No demo URLs found');
-      const demoUrl = demoURLs[match.matchRound - 1];
+        if (!demoURLs) throw new Error('No demo URLs found');
+        url = demoURLs[demoIdx];
+      }
 
       try {
-        await sendDemoToAnalyzer(faceitMatchId, demoUrl);
+        await sendDemoToAnalyzer(matchId, url);
       } catch (error) {
         if (error instanceof HttpError && error.status === 403) {
           console.warn('Cookie expired — refreshing session and retrying');

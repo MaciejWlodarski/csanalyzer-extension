@@ -15,7 +15,11 @@ const DemoStatusRow = ({
   demo?: AnalyzerDemoState;
   isBatchLoading: boolean;
 }) => {
-  const { statusQuery, uploadMutation } = useAnalyzerStatus(match, demo);
+  const { statusQuery, uploadMutation } = useAnalyzerStatus(
+    match.matchId,
+    match.matchRound - 1,
+    demo
+  );
   const { data: demoData, isLoading, isError, error } = statusQuery;
   const {
     mutate,
