@@ -86,8 +86,20 @@ const Panel = () => {
         {user && user.games.cs2 && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <img src={user.avatar} className="size-12 rounded-lg" />
-              <div className="flex w-full flex-col gap-1">
+              {user.avatar ? (
+                <img src={user.avatar} className="size-12 rounded-lg" />
+              ) : (
+                <div className="flex size-12 items-center justify-center rounded-lg bg-zinc-900">
+                  <svg viewBox="0 0 80 80" fill="none" height="24" width="24">
+                    <path
+                      d="M13.333 66.667h53.334V60c0-7.364-5.97-13.333-13.334-13.333H26.667c-7.364 0-13.334 5.97-13.334 13.333v6.667zm13.334-53.334h26.666V30c0 5.523-4.477 10-10 10h-6.666c-5.523 0-10-4.477-10-10V13.333z"
+                      fill="grey"
+                    ></path>
+                  </svg>
+                </div>
+              )}
+
+              <div className="flex flex-1 flex-col gap-1">
                 <span className="font-bold">{user.nickname}</span>
                 <div className="flex gap-1">
                   <Button

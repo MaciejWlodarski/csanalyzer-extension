@@ -128,7 +128,7 @@ export const interceptApiData = (
 
 const faceitUserSchema = z.object({
   id: z.string(),
-  avatar: z.string(),
+  avatar: z.string().optional(),
   nickname: z.string(),
   games: z.object({
     cs2: z
