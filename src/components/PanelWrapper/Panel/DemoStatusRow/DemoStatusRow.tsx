@@ -5,6 +5,8 @@ import { ExternalLink, LoaderCircle, ShieldX, Upload } from 'lucide-react';
 import { useAnalyzerStatus } from '@/hooks/useAnalyzerStatus';
 import { FaceitMatchStats } from '@/api/faceit';
 import { AnalyzerDemoState } from '@/api/analyzer';
+import { getMatchOutcome } from '@/utils/matchOutcome';
+import { cn } from '@/lib/utils';
 
 const DemoStatusRow = ({
   match,
@@ -28,13 +30,20 @@ const DemoStatusRow = ({
     error: uploadError,
   } = uploadMutation;
 
+  const { score, outcome } = getMatchOutcome(match.score, match.playerScore);
+
   return (
     <TableRow
       key={`${match.matchId}-${match.matchRound}`}
       className="hover:bg-transparent"
     >
       <TableCell>{formatDate(match.date)}</TableCell>
-      <TableCell>{match.score}</TableCell>
+      <TableCell
+        className={cn('font-bold', {
+          'text-emerald-600': outcome === 'win',
+          'text-red-600': outcome === 'loss',
+        })}
+      >{`${score[0]} : ${score[1]}`}</TableCell>
       <TableCell>
         {isBatchLoading || isLoading || !demoData ? (
           <Button className="w-full" size="sm" disabled>

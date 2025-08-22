@@ -45,12 +45,14 @@ const faceitMatchStatsSchema = z
     matchId: z.string(),
     matchRound: z.string(),
     date: z.number(),
+    c5: z.string(),
     i18: z.string(),
   })
-  .transform(({ matchId, matchRound, date, i18 }) => ({
+  .transform(({ matchId, matchRound, date, c5, i18 }) => ({
     matchId,
     matchRound: Number(matchRound),
     date,
+    playerScore: c5,
     score: i18,
   }));
 export type FaceitMatchStats = z.infer<typeof faceitMatchStatsSchema>;

@@ -33,11 +33,7 @@ export function useAnalyzerStatus(
   ): Promise<AnalyzerStatusResult> => {
     if (demoState.status === 'success') {
       const analyzerMatchId = await getAnalyzerMatchId(demoState.demoId);
-      if (analyzerMatchId == null) {
-        throw new Error(
-          "Expected analyzerMatchId for 'success' demo, but got null"
-        );
-      }
+      if (analyzerMatchId === null) return { status: 'missing' };
       return { status: 'success', analyzerMatchId };
     }
     if (demoState.quotaExceeded) return { status: 'missing' };
