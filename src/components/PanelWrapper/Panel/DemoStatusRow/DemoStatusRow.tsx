@@ -52,7 +52,7 @@ const DemoStatusRow = ({
           </Button>
         ) : isError ? (
           <div className="mt-1 text-sm text-red-500">{error.message}</div>
-        ) : demoData.status === 'missing' ? (
+        ) : demoData.status === 'missing' || demoData.status === 'waiting' ? (
           <>
             {isUploading ? (
               <Button className="w-full" size="sm" disabled>
@@ -89,7 +89,7 @@ const DemoStatusRow = ({
             className="w-full bg-brand hover:bg-brand-700"
           >
             <a
-              href={`http://csanalyzer.gg/app/matches/${demoData.analyzerMatchId}`}
+              href={`http://csanalyzer.gg/app/matches/${demoData.demoId}`}
               target="_blank"
               rel="noopener noreferrer"
             >

@@ -10,7 +10,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 type DemoStatus = AnalyzerDemoStatus | 'missing' | 'uploading';
 type AnalyzerStatusResult =
-  | { status: 'success'; analyzerMatchId: number }
+  | { status: 'success'; demoId: string }
   | { status: Exclude<DemoStatus, 'success'> };
 
 export function useAnalyzerStatus(
@@ -32,9 +32,7 @@ export function useAnalyzerStatus(
     demoState: AnalyzerDemoState
   ): Promise<AnalyzerStatusResult> => {
     if (demoState.status === 'success') {
-      const analyzerMatchId = await getAnalyzerMatchId(demoState.demoId);
-      if (analyzerMatchId === null) return { status: 'missing' };
-      return { status: 'success', analyzerMatchId };
+      return { status: 'success', demoId: demoState.demoId };
     }
     if (demoState.quotaExceeded) return { status: 'missing' };
     return { status: demoState.status };
@@ -43,9 +41,12 @@ export function useAnalyzerStatus(
   const statusQuery = useQuery<AnalyzerStatusResult, Error>({
     queryKey: statusQueryKey,
     queryFn: async () => {
-      if (demo?.quotaExceeded) return { status: 'missing' };
-      if (demo?.status === 'failed') return { status: 'failed' };
-      if (demo?.status === 'success') return getStatusFromDemo(demo);
+      if (demo?.status === 'failed' && !demo.quotaExceeded) {
+        return { status: 'failed' };
+      }
+      if (demo?.status === 'success') {
+        return getStatusFromDemo(demo);
+      }
 
       const { exists, demos } = await fetchAnalyzerGameStatus(matchId);
       if (!exists) return { status: 'missing' };
