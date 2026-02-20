@@ -4,7 +4,6 @@
   "version": "0.2.0",
   "version_name": "0.2.0-beta.4",
   "permissions": [
-    "activeTab",
     "scripting"
   ],
   "content_scripts": [
@@ -38,6 +37,9 @@
     }
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://www.faceit.com/*",
+    "https://faceit.com/*",
+    "https://collector.csanalyzer.gg/*",
+    "https://art.csanalyzer.gg/*"
   ]
 }

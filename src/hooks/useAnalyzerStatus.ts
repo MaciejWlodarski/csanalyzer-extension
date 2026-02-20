@@ -2,7 +2,6 @@ import {
   AnalyzerDemoState,
   AnalyzerDemoStatus,
   fetchAnalyzerGameStatus,
-  getAnalyzerMatchId,
   sendDemoToAnalyzer,
 } from '@/api/analyzer';
 import { fetchFaceitMatch, HttpError } from '@/api/faceit';
