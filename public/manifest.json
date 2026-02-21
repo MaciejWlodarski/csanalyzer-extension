@@ -3,9 +3,6 @@
   "name": "CSAnalyzer Extension",
   "version": "0.2.0",
   "version_name": "0.2.0-beta.4",
-  "permissions": [
-    "scripting"
-  ],
   "content_scripts": [
     {
       "matches": [
@@ -35,11 +32,5 @@
         "assets/steam.png"
       ]
     }
-  ],
-  "host_permissions": [
-    "https://www.faceit.com/*",
-    "https://faceit.com/*",
-    "https://collector.csanalyzer.gg/*",
-    "https://art.csanalyzer.gg/*"
   ]
 }
