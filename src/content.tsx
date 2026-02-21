@@ -1,4 +1,4 @@
-import Analayzer from './components/Analyzer/Analyzer';
+import MatchPageWidget from './components/MatchPageWidget/MatchPageWidget';
 import SidebarTrigger from './components/PanelWrapper/SidebarTrigger';
 import TopbarTrigger from './components/PanelWrapper/TopbarTrigger';
 import { createRoot } from 'react-dom/client';
@@ -28,7 +28,7 @@ window.addEventListener('matchApi', (event) => {
   observeForGameInfoSections((rootElement) => {
     createRoot(rootElement).render(
       <QueryClientProvider client={queryClient}>
-        <Analayzer matchData={matchApiResponse} />
+        <MatchPageWidget matchData={matchApiResponse} />
       </QueryClientProvider>
     );
   }, matchId);
@@ -64,7 +64,7 @@ window.addEventListener('urlChange', (event) => {
   observeForGameInfoSections((rootElement) => {
     createRoot(rootElement).render(
       <QueryClientProvider client={queryClient}>
-        <Analayzer matchData={matchApiResponse} />
+        <MatchPageWidget matchData={matchApiResponse} />
       </QueryClientProvider>
     );
   }, urlMatchId);

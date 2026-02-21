@@ -23,13 +23,14 @@ export function useAnalyzerStatus(
     'analyzer-status',
     matchId,
     demoIdx,
+    demoUrl,
     !!demo,
     demo?.demoId,
   ];
 
-  const getStatusFromDemo = async (
+  const getStatusFromDemo = (
     demoState: AnalyzerDemoState
-  ): Promise<AnalyzerStatusResult> => {
+  ): AnalyzerStatusResult => {
     if (demoState.status === 'success') {
       return { status: 'success', demoId: demoState.demoId };
     }

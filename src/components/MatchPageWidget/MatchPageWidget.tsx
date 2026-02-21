@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { FaceitMatch, MapVetoEntity } from '@/api/faceit';
 import { useQuery } from '@tanstack/react-query';
 import { AnalyzerDemoState, fetchAnalyzerGameStatus } from '@/api/analyzer';
-import Demo from './Demo/Demo';
+import DemoButton from './DemoButton/DemoButton';
 
 export interface MapData {
   map: MapVetoEntity;
@@ -27,7 +27,7 @@ export const getMaps = (match: FaceitMatch) => {
   return maps ? [maps] : [];
 };
 
-const Analayzer = ({ matchData }: { matchData: FaceitMatch }) => {
+const MatchPageWidget = ({ matchData }: { matchData: FaceitMatch }) => {
   const { demoURLs: faceitDemoUrls, id: matchId } = matchData;
   if (!faceitDemoUrls) return null;
 
@@ -80,23 +80,31 @@ const Analayzer = ({ matchData }: { matchData: FaceitMatch }) => {
             </div>
           )}
 
-          {faceitDemoUrls.map((demoUrl, idx) => {
-            const demo = demoStates?.get(demoUrl);
-            return (
-              <Demo
-                key={demoUrl}
-                matchId={matchId}
-                demoUrl={demoUrl}
-                demoIdx={idx}
-                demo={demo}
-                isBatchLoading={isLoadingDemos}
-              />
-            );
-          })}
+          {faceitDemoUrls.length === 0 && (
+            <div className="text-sm text-neutral-400">
+              Demos are not yet available for this match.
+            </div>
+          )}
+
+          {!isDemosError &&
+            faceitDemoUrls.length > 0 &&
+            faceitDemoUrls.map((demoUrl, idx) => {
+              const demo = demoStates?.get(demoUrl);
+              return (
+                <DemoButton
+                  key={demoUrl}
+                  matchId={matchId}
+                  demoUrl={demoUrl}
+                  demoIdx={idx}
+                  demo={demo}
+                  isBatchLoading={isLoadingDemos}
+                />
+              );
+            })}
         </CardContent>
       </Card>
     </div>
   );
 };
 
-export default Analayzer;
+export default MatchPageWidget;

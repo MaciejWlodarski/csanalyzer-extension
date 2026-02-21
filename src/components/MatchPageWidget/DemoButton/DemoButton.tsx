@@ -3,7 +3,7 @@ import { AnalyzerDemoState } from '@/api/analyzer';
 import { ExternalLink, LoaderCircle, ShieldX, Upload } from 'lucide-react';
 import { useAnalyzerStatus } from '@/hooks/useAnalyzerStatus';
 
-const Demo = ({
+const DemoButton = ({
   matchId,
   demoUrl,
   demoIdx,
@@ -100,4 +100,4 @@ const Demo = ({
   );
 };
 
-export default Demo;
+export default DemoButton;
