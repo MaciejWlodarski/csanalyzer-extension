@@ -8,7 +8,7 @@ const rootSelector = (matchId: string, index: number) =>
 const findExistingRoot = (matchId: string, index: number) =>
   document.querySelector(rootSelector(matchId, index));
 
-const createRootElement = (
+const createRootElementAfter = (
   section: Element,
   matchId: string,
   index: number
@@ -21,11 +21,50 @@ const createRootElement = (
   return root;
 };
 
+const createRootElementInside = (
+  container: Element,
+  matchId: string,
+  index: number
+) => {
+  const root = document.createElement('div');
+  root.classList.add(ROOT_CLASS);
+  root.dataset.matchId = matchId;
+  root.dataset.sectionIndex = String(index);
+  container.appendChild(root);
+  return root;
+};
+
+const ensureRootInOverviewStack = (
+  callback: (root: HTMLDivElement) => void,
+  matchId: string
+): number => {
+  const stack = document.querySelector('div[class^="Overview__Stack"]');
+  if (!stack) return 0;
+
+  const index = 0;
+  const existing = findExistingRoot(matchId, index);
+
+  if (existing) {
+    if (existing.parentElement !== stack) {
+      stack.appendChild(existing);
+    }
+    return 1;
+  }
+
+  const root = createRootElementInside(stack, matchId, index);
+  callback(root);
+  return 1;
+};
+
 const ensureRootsForAllSections = (
   callback: (root: HTMLDivElement) => void,
   matchId: string
 ): number => {
   const sections = document.querySelectorAll('div[class^="Finished__Section"]');
+
+  if (sections.length === 0) {
+    return ensureRootInOverviewStack(callback, matchId);
+  }
 
   sections.forEach((section, index) => {
     const existing = findExistingRoot(matchId, index);
@@ -39,7 +78,7 @@ const ensureRootsForAllSections = (
       return;
     }
 
-    const root = createRootElement(section, matchId, index);
+    const root = createRootElementAfter(section, matchId, index);
     callback(root);
   });
 

@@ -15,7 +15,7 @@ type AnalyzerStatusResult =
 export function useAnalyzerStatus(
   matchId: string,
   demoIdx: number,
-  demo?: AnalyzerDemoState,
+  demoState?: AnalyzerDemoState,
   demoUrl?: string
 ) {
   const queryClient = useQueryClient();
@@ -24,8 +24,8 @@ export function useAnalyzerStatus(
     matchId,
     demoIdx,
     demoUrl,
-    !!demo,
-    demo?.demoId,
+    !!demoState,
+    demoState?.demoId,
   ];
 
   const getStatusFromDemo = (
@@ -41,11 +41,11 @@ export function useAnalyzerStatus(
   const statusQuery = useQuery<AnalyzerStatusResult, Error>({
     queryKey: statusQueryKey,
     queryFn: async () => {
-      if (demo?.status === 'failed' && !demo.quotaExceeded) {
+      if (demoState?.status === 'failed' && !demoState.quotaExceeded) {
         return { status: 'failed' };
       }
-      if (demo?.status === 'success') {
-        return getStatusFromDemo(demo);
+      if (demoState?.status === 'success') {
+        return getStatusFromDemo(demoState);
       }
 
       const { exists, demos } = await fetchAnalyzerGameStatus(matchId);

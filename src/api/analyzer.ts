@@ -166,24 +166,3 @@ export const getAnalyzerMatchId = async (demoId: string) => {
   const matchStatus = await fetchAnalyzerMatchStatus(demoId);
   return matchStatus.latestMatchId;
 };
-
-// export const sendDemosToAnalyzer = async (
-//   matchId,
-//   demoUrls,
-//   analyzerStatus,
-// ) => {
-//   const { demos: analyzerDemos } = analyzerStatus;
-
-//   for (const demoUrl of demoUrls) {
-//     const stateInAnalyzer = analyzerDemos.find(
-//       (demo) => demo.demo_url === demoUrl,
-//     );
-
-//     if (stateInAnalyzer) continue;
-
-//     const realDemoUrl = await getRealDemoUrl(demoUrl);
-//     const response = await sendDemoUrl(matchId, demoUrl, realDemoUrl);
-
-//     return response;
-//   }
-// };

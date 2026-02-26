@@ -7,19 +7,19 @@ const DemoButton = ({
   matchId,
   demoUrl,
   demoIdx,
-  demo,
+  demoState,
   isBatchLoading,
 }: {
   matchId: string;
   demoUrl: string;
   demoIdx: number;
-  demo?: AnalyzerDemoState;
+  demoState?: AnalyzerDemoState;
   isBatchLoading: boolean;
 }) => {
   const { statusQuery, uploadMutation } = useAnalyzerStatus(
     matchId,
     demoIdx,
-    demo,
+    demoState,
     demoUrl
   );
   const { data: demoData, isLoading, isError, error } = statusQuery;

@@ -9,24 +9,6 @@ export interface MapData {
   demoUrl: string;
 }
 
-export const getMaps = (match: FaceitMatch) => {
-  const veto = match.voting?.map;
-  if (veto) {
-    return veto.pick.map((pick) => {
-      const m = veto.entities.find((m) => m.className === pick);
-      if (!m) throw new Error(`No entity for pick: ${pick}`);
-      return m;
-    });
-  }
-
-  const maps = match.matchCustom.tree.map.values.value;
-  if (Array.isArray(maps)) {
-    return maps;
-  }
-
-  return maps ? [maps] : [];
-};
-
 const MatchPageWidget = ({ matchData }: { matchData: FaceitMatch }) => {
   const { demoURLs: faceitDemoUrls, id: matchId } = matchData;
   if (!faceitDemoUrls) return null;
@@ -89,14 +71,14 @@ const MatchPageWidget = ({ matchData }: { matchData: FaceitMatch }) => {
           {!isDemosError &&
             faceitDemoUrls.length > 0 &&
             faceitDemoUrls.map((demoUrl, idx) => {
-              const demo = demoStates?.get(demoUrl);
+              const demoState = demoStates?.get(demoUrl);
               return (
                 <DemoButton
                   key={demoUrl}
                   matchId={matchId}
                   demoUrl={demoUrl}
                   demoIdx={idx}
-                  demo={demo}
+                  demoState={demoState}
                   isBatchLoading={isLoadingDemos}
                 />
               );

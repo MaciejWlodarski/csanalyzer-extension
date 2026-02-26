@@ -203,6 +203,13 @@ export const fetchRealDemoUrl = async (demoUrl: string) => {
   });
 
   if (!response.ok) {
+    if (response.status === 403) {
+      throw new HttpError(
+        403,
+        'Please try to download the demo manually from the matchroom first and then try again.'
+      );
+    }
+
     throw new HttpError(response.status, `HTTP error: ${response.status}`);
   }
 
