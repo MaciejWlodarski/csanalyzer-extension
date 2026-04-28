@@ -40,7 +40,7 @@ const MatchPageWidget = ({ matchData }: { matchData: FaceitMatch }) => {
 
   return (
     <div className="flex flex-col pb-8">
-      <Card className="overflow-hidden rounded bg-neutral-900">
+      <Card className="overflow-hidden rounded-sm bg-neutral-900">
         <CardHeader className="bg-neutral-800 p-4">
           <div className="flex items-center justify-between">
             <a href="https://csanalyzer.gg/">

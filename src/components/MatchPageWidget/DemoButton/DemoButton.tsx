@@ -33,39 +33,43 @@ const DemoButton = ({
   return (
     <>
       {isBatchLoading || isLoading || !demoData ? (
-        <Button className="w-full" size="sm" disabled>
+        <Button className="w-full text-xs" size="sm" disabled>
           <LoaderCircle className="animate-spin" />
           Loading...
         </Button>
       ) : isError ? (
-        <div className="mt-1 text-sm text-red-500">{error.message}</div>
+        <div className="mt-1 text-xs text-red-500">{error.message}</div>
       ) : demoData.status === 'missing' || demoData.status === 'waiting' ? (
         <>
           {isUploading ? (
-            <Button className="w-full" size="sm" disabled>
+            <Button className="w-full text-xs" size="sm" disabled>
               <LoaderCircle className="animate-spin" />
               Uploading...
             </Button>
           ) : (
-            <Button className="w-full" size="sm" onClick={() => mutate()}>
+            <Button
+              className="w-full text-xs"
+              size="sm"
+              onClick={() => mutate()}
+            >
               <span>Upload</span>
               <Upload />
             </Button>
           )}
 
           {isUploadError && (
-            <div className="mt-1 text-sm text-red-500">
+            <div className="mt-1 text-xs text-red-500">
               {uploadError.message}
             </div>
           )}
         </>
       ) : demoData.status === 'queued' ? (
-        <Button className="w-full" size="sm" disabled>
+        <Button className="w-full text-xs" size="sm" disabled>
           <LoaderCircle className="animate-spin" />
           Queued...
         </Button>
       ) : demoData.status === 'processing' ? (
-        <Button className="w-full" size="sm" disabled>
+        <Button className="w-full text-xs" size="sm" disabled>
           <LoaderCircle className="animate-spin" />
           Processing...
         </Button>
@@ -73,7 +77,7 @@ const DemoButton = ({
         <Button
           asChild
           size="sm"
-          className="w-full bg-brand hover:bg-brand-700"
+          className="bg-brand hover:bg-brand-700 w-full text-xs"
         >
           <a
             href={`http://csanalyzer.gg/app/matches/${demoData.demoId}`}
@@ -88,7 +92,7 @@ const DemoButton = ({
         <Button
           disabled
           size="sm"
-          className="w-full bg-red-700 text-white disabled:opacity-100"
+          className="w-full bg-red-700 text-xs text-white disabled:opacity-100"
         >
           Failed
           <ShieldX />

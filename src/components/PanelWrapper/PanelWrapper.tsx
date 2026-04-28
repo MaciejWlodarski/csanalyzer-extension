@@ -38,7 +38,7 @@ const PanelWrapper = () => {
       <Button
         ref={buttonRef}
         variant="ghost"
-        className="hover: size-10 rounded-xl bg-neutral-800 p-0.5 hover:bg-brand"
+        className="hover:bg-brand! size-10 rounded-xl bg-neutral-800 p-0.5 hover:cursor-pointer"
         onClick={() => setOpen(!open)}
       >
         <div className="size-full rounded-[0.625rem] bg-neutral-700 p-1">
@@ -52,7 +52,7 @@ const PanelWrapper = () => {
       <div
         data-state={open ? 'open' : 'closed'}
         ref={panelRef}
-        className="absolute right-[4.5rem] top-0 z-50 h-screen w-96 py-4 transition-opacity data-[state=closed]:pointer-events-none data-[state=open]:pointer-events-auto data-[state=closed]:opacity-0 data-[state=open]:opacity-100"
+        className="absolute top-0 right-18 z-50 h-screen w-96 py-4 transition-opacity data-[state=closed]:pointer-events-none data-[state=closed]:opacity-0 data-[state=open]:pointer-events-auto data-[state=open]:opacity-100"
       >
         <Panel />
       </div>

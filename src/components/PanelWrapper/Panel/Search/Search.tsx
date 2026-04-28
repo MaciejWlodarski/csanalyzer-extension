@@ -22,7 +22,7 @@ const Search = ({ onSuccess }: { onSuccess: (user: FaceitUser) => void }) => {
 
   return (
     <form
-      className="grid w-full grid-cols-[3fr,_2fr] items-center gap-2"
+      className="grid w-full grid-cols-[4fr_3fr] items-center gap-2"
       onSubmit={handleSearch}
     >
       <Input
@@ -42,7 +42,6 @@ const Search = ({ onSuccess }: { onSuccess: (user: FaceitUser) => void }) => {
           'Search'
         )}
       </Button>
-
       {userMutation.isError && (
         <div className="col-span-2 text-sm text-red-500">
           Error: {userMutation.error.message}

@@ -71,7 +71,7 @@ const Panel = () => {
   });
 
   return (
-    <div className="grid h-full grid-rows-[auto,_1fr] flex-col">
+    <div className="flex h-full flex-col">
       <div className="flex items-center justify-between rounded-t-xl border border-neutral-800 bg-neutral-900 p-4">
         <a href="https://csanalyzer.gg/">
           <Logo className="m-min h-5" />

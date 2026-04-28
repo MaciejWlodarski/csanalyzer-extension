@@ -39,7 +39,14 @@ export function useAnalyzerStatus(
   };
 
   const statusQuery = useQuery<AnalyzerStatusResult, Error>({
-    queryKey: statusQueryKey,
+    queryKey: [
+      'analyzer-status',
+      matchId,
+      demoIdx,
+      demoUrl,
+      !!demoState,
+      demoState?.demoId,
+    ],
     queryFn: async () => {
       if (demoState?.status === 'failed' && !demoState.quotaExceeded) {
         return { status: 'failed' };
@@ -52,7 +59,7 @@ export function useAnalyzerStatus(
       if (!exists) return { status: 'missing' };
       const fetched = demoUrl
         ? demos.find((d) => d.demoUrl === demoUrl)
-        : demos[demoIdx];
+        : demos.find((_, index) => index === demoIdx);
       if (!fetched || fetched.quotaExceeded) return { status: 'missing' };
       return getStatusFromDemo(fetched);
     },
