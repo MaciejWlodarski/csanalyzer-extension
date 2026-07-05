@@ -1,38 +1,20 @@
 import MatchPageWidget from './components/MatchPageWidget/MatchPageWidget';
 import SidebarTrigger from './components/PanelWrapper/SidebarTrigger';
 import TopbarTrigger from './components/PanelWrapper/TopbarTrigger';
-import { createRoot } from 'react-dom/client';
+import { createRoot, Root } from 'react-dom/client';
 import { observeForGameInfoSections } from './page/matchObserver';
 import { observeForPanelSection } from './page/panelObserver';
 import { injectScript } from './utils/scripts';
-import { FaceitMatch } from './api/faceit';
+import { FaceitMatch, fetchFaceitMatch } from './api/faceit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 
 injectScript();
 
 const queryClient = new QueryClient();
-let matchApiResponse: FaceitMatch;
-
-window.addEventListener('matchApi', (event) => {
-  matchApiResponse = event.detail;
-  const matchId = matchApiResponse.id;
-
-  document.querySelectorAll('.react-root-match').forEach((element) => {
-    const el = element as HTMLElement;
-    if (el.dataset.matchId !== matchId) {
-      el.remove();
-    }
-  });
-
-  observeForGameInfoSections((rootElement) => {
-    createRoot(rootElement).render(
-      <QueryClientProvider client={queryClient}>
-        <MatchPageWidget matchData={matchApiResponse} />
-      </QueryClientProvider>
-    );
-  }, matchId);
-});
+const matchWidgetRoots = new WeakMap<Element, Root>();
+let matchApiResponse: FaceitMatch | undefined;
+let pendingMatchId: string | null = null;
 
 const extractMatchIdFromUrl = (url: string) => {
   const match = url.match(
@@ -41,33 +23,85 @@ const extractMatchIdFromUrl = (url: string) => {
   return match ? match[1] : null;
 };
 
-window.addEventListener('urlChange', (event) => {
-  if (!matchApiResponse) return;
+const renderMatchWidget = (
+  rootElement: HTMLDivElement,
+  matchData: FaceitMatch
+) => {
+  const root =
+    matchWidgetRoots.get(rootElement) ??
+    (() => {
+      const createdRoot = createRoot(rootElement);
+      matchWidgetRoots.set(rootElement, createdRoot);
+      return createdRoot;
+    })();
 
-  const urlMatchId = extractMatchIdFromUrl(event.detail);
-  const apiMatchId = matchApiResponse.id;
+  root.render(
+    <QueryClientProvider client={queryClient}>
+      <MatchPageWidget matchData={matchData} />
+    </QueryClientProvider>
+  );
+};
 
-  if (urlMatchId !== apiMatchId) {
-    document.querySelectorAll('.react-root-match').forEach((element) => {
-      element.remove();
-    });
-    return;
-  }
-
+const removeMatchWidgetsExcept = (matchId: string) => {
   document.querySelectorAll('.react-root-match').forEach((element) => {
     const el = element as HTMLElement;
-    if (el.dataset.matchId !== urlMatchId) {
+    if (el.dataset.matchId !== matchId) {
       el.remove();
     }
   });
+};
+
+const renderMatchData = (matchData: FaceitMatch) => {
+  matchApiResponse = matchData;
+  removeMatchWidgetsExcept(matchData.id);
 
   observeForGameInfoSections((rootElement) => {
-    createRoot(rootElement).render(
-      <QueryClientProvider client={queryClient}>
-        <MatchPageWidget matchData={matchApiResponse} />
-      </QueryClientProvider>
-    );
-  }, urlMatchId);
+    renderMatchWidget(rootElement, matchData);
+  }, matchData.id);
+};
+
+const loadMatchFromUrl = async (url: string) => {
+  const matchId = extractMatchIdFromUrl(url);
+  if (!matchId || pendingMatchId === matchId) return;
+
+  if (matchApiResponse?.id === matchId) {
+    renderMatchData(matchApiResponse);
+    return;
+  }
+
+  pendingMatchId = matchId;
+
+  try {
+    renderMatchData(await fetchFaceitMatch(matchId));
+  } catch (error) {
+    console.error('Failed to fetch FACEIT match data:', error);
+  } finally {
+    if (pendingMatchId === matchId) {
+      pendingMatchId = null;
+    }
+  }
+};
+
+const handleUrlChange = (url: string) => {
+  const matchId = extractMatchIdFromUrl(url);
+
+  if (!matchId) {
+    document.querySelectorAll('.react-root-match').forEach((element) => {
+      element.remove();
+    });
+    matchApiResponse = undefined;
+    return;
+  }
+
+  void loadMatchFromUrl(url);
+};
+
+window.addEventListener('matchApi', (event) => {
+  renderMatchData(event.detail);
+});
+
+window.addEventListener('urlChange', (event) => {
+  handleUrlChange(event.detail);
 });
 
 observeForPanelSection(({ root, pos }) => {
@@ -77,3 +111,5 @@ observeForPanelSection(({ root, pos }) => {
     </QueryClientProvider>
   );
 });
+
+void loadMatchFromUrl(location.href);

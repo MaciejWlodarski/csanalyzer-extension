@@ -66,10 +66,43 @@ type InterceptedXhr = XMLHttpRequest & { _interceptedUrl?: string };
 export const interceptApiData = (
   callback: (data: InterceptedPayload) => void
 ): void => {
+  const handleApiResponse = (url: string, responseText: string): void => {
+    const isMatchEndpoint = url.includes('/api/match/v2/match/');
+    const isStatsGamesEndpoint =
+      /\/api\/stats\/v1\/stats\/time\/users\/[^/]+\/games\/cs2(?:\?.*)?$/.test(
+        url
+      );
+
+    if (!isMatchEndpoint && !isStatsGamesEndpoint) return;
+
+    try {
+      if (isMatchEndpoint) {
+        const matchResponseSchema = z.object({
+          payload: faceitMatchSchema,
+        });
+
+        const parsedResponse = matchResponseSchema.parse(
+          JSON.parse(responseText)
+        );
+
+        callback({ label: 'match', payload: parsedResponse.payload });
+      } else if (isStatsGamesEndpoint) {
+        const parsed = faceitMatchStatsSchema
+          .array()
+          .parse(JSON.parse(responseText));
+
+        callback({ label: 'stats', payload: parsed });
+      }
+    } catch (error) {
+      console.error('Zod parsing or JSON error:', error);
+    }
+  };
+
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const originalOpen = XMLHttpRequest.prototype.open;
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const originalSend = XMLHttpRequest.prototype.send;
+  const originalFetch = window.fetch;
 
   XMLHttpRequest.prototype.open = function (
     this: InterceptedXhr,
@@ -90,42 +123,40 @@ export const interceptApiData = (
   ): void {
     this.addEventListener('readystatechange', function (this: InterceptedXhr) {
       if (this.readyState === 4 && this.status === 200) {
-        const url = this._interceptedUrl ?? '';
-
-        const isMatchEndpoint = url.includes('/api/match/v2/match/');
-        const isStatsGamesEndpoint =
-          /\/api\/stats\/v1\/stats\/time\/users\/[^/]+\/games\/cs2(?:\?.*)?$/.test(
-            url
-          );
-
-        if (isMatchEndpoint || isStatsGamesEndpoint) {
-          try {
-            if (isMatchEndpoint) {
-              const matchResponseSchema = z.object({
-                payload: faceitMatchSchema,
-              });
-
-              const parsedResponse = matchResponseSchema.parse(
-                JSON.parse(this.responseText)
-              );
-
-              callback({ label: 'match', payload: parsedResponse.payload });
-            } else if (isStatsGamesEndpoint) {
-              const parsed = faceitMatchStatsSchema
-                .array()
-                .parse(JSON.parse(this.responseText));
-
-              callback({ label: 'stats', payload: parsed });
-            }
-          } catch (error) {
-            console.error('Zod parsing or JSON error:', error);
-          }
-        }
+        handleApiResponse(this._interceptedUrl ?? '', this.responseText);
       }
     });
 
     Reflect.apply(originalSend, this, args);
   };
+
+  if (typeof originalFetch === 'function') {
+    window.fetch = async function (
+      this: typeof window,
+      input: RequestInfo | URL,
+      init?: RequestInit
+    ): Promise<Response> {
+      const response = await Reflect.apply(originalFetch, this, [input, init]);
+      const url =
+        typeof input === 'string'
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : input.url;
+
+      if (response.ok) {
+        response
+          .clone()
+          .text()
+          .then((responseText) => handleApiResponse(url, responseText))
+          .catch((error: unknown) => {
+            console.error('FACEIT fetch interception error:', error);
+          });
+      }
+
+      return response;
+    };
+  }
 };
 
 const faceitUserSchema = z.object({

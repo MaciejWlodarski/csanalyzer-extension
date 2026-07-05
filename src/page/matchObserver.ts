@@ -48,6 +48,7 @@ const ensureRootInOverviewStack = (
     if (existing.parentElement !== stack) {
       stack.appendChild(existing);
     }
+    callback(existing as HTMLDivElement);
     return 1;
   }
 
@@ -75,6 +76,7 @@ const ensureRootsForAllSections = (
       if (!isPlacedAfterThisSection) {
         section.parentNode?.insertBefore(existing, section.nextSibling);
       }
+      callback(existing as HTMLDivElement);
       return;
     }
 
